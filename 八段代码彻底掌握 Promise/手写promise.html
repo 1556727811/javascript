@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手写promise</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    const PENDING = 'pending'
+    const RESOLVED = 'resolved'
+    const REJECTED = 'rejected'
+
+    function MyPromise(fn) {
+        const that = this;
+        that.state = PENDING;
+        that.value = null
+
+        that.resolvedCallbacks = []
+        that.rejectedCallbacks = []
+
+        // 定义resolve函数
+        function resolve(value) {
+            if (that.state === PENDING) {
+                that.state = RESOLVED
+                that.value = value
+                console.log(that.resolvedCallbacks);
+                that.resolvedCallbacks.map(cb => cb(that.value))
+            }
+        }
+        console.log(111);
+        // 定义 reject函数
+        function reject(value) {
+            if (that.state === PENDING) {
+                that.state = REJECTED
+                that.value = value
+                that.rejectedCallbacks.map(cb => cb(that.value))
+            }
+        }
+
+
+        try {
+            fn(resolve, reject)
+        } catch (e) {
+            reject(e)
+        }
+    }
+
+    MyPromise.prototype.then
+
+
+
+
+    let a = new MyPromise(function(resolve,reject){
+        console.log(2);
+    })
+    console.log(a);
+
+</script>
+
+</html>

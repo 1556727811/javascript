@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="left_img" :style="'background-image: url(' + item2.iconImgUrl + ');'" />
+  </body>
+</html>
+<script>
+  let rkuohao2 = /(?=:)/g
+  let rkuohao1 = /(\S*):/
+
+  let aaa = '1/3:123'
+
+  let str = aaa.match(/(\S*)\/(\S*):/)
+  console.log(str)
+  // let text2 = aaa.replace(rkuohao1, function (_, g) {
+  //   console.log(g)
+  // })
+
+  // console.log(aaa.match(rkuohao2))
+  var str = 'aaabbbfff'
+  str = str.match(/aaa(\S*)fff/)[1]
+  console.log(str) //结果bbb
+  var str = 'aaafff'
+  str = str.match(/(\S*)fff/)[1]
+  console.log(str) //结果aaa
+  var str = 'aaafff'
+  str = str.match(/aaa(\S*)/)[1]
+  console.log(str) //结果fff
+</script>

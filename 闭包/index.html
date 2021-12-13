@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闭包</title>
+</head>
+<ul>
+    <li>link1</li>
+    <li>link2</li>
+    <li>link3</li>
+    <li>link4</li>
+    <li>link5</li>
+    <li>link6</li>
+</ul>
+
+<body>
+
+</body>
+<script>
+    //闭包
+    // 概念：作用域的嵌套，将原本的局部变量进化成私有变量的环境
+    // 原理：利用作用域的嵌套，触发系统的垃圾回收机制，使原本要删除的局部变量，临时保存，可以被再次使用，知道彻底不用了，再进行删除
+    // 垃圾回收机制：不直接删除，暂存在某个临时区域中，如果需要再次使用，可以拿出来使用，彻底不用了，再删除
+    // -------------
+    // function fn(){
+    //     var a = 10;
+    //     a++
+    //     console.log(a);
+    // }
+    // fn()//11  在外部修改了内部的值
+    // fn()//11
+    // -------------
+    //执行上下文 this
+    // function fn() {
+    //     // 闭包就是把自己声明上下文中的变量保存到临时空间，在执行上下文可以拿到
+    //     var a = 10;//a相当于fn1是私有变量||全局变量
+    //     function fn1() {// fn1的声明上下文就是fn的作用域
+    //         a++;
+    //         console.log(a);
+    //     }
+    //     return fn1
+    // }
+    // console.log(fn());//现在的fn等于fn函数return出来的fn1函数
+    // var f = fn()//不能这样执行fn().fn1f。需要赋值给一个变量，这个变量等于return出来的fn1
+    // f()//每次执行的事fn函数里面的fn1
+    // f()//f执行了fn函数里面的fn1函数，所以这里(window)就是fn1的执行上下文，可以拿到fn1声明上下文保存在临时空间的函数
+    // -------------
+    var ali = document.querySelectorAll("li")
+    // for(var i=0;i<ali.length;i++){
+    //     ali[i].onclick=function(){
+    //         console.log(i);
+    //     }
+    // }
+
+
+    // for (var i = 0; i < ali.length; i++) {
+    //     ali[i].onclick = (function (j) {
+    //         var j = j// 在声明上下文中拿到了j 每次循环的时候吧j存在临时空间里面
+    //         return function () {
+    //             console.log(j);
+    //         }
+    //     })(i)
+    // }
+    // for (var i = 0; i < ali.length; i++) {
+    //     (function(i){
+    //         ali[i].onclick=function(){
+    //             console.log(i);
+    //         }
+    //     })(i)
+    // }
+
+    // setTimeout(fn('hello'), 2000);
+    // function fn(a) {
+    //     a = a + ' word'
+    //     return function () {
+    //         console.log(a);
+    //     }
+    // }
+    // -------------
+    // 优缺点：
+    //     可以将原本要删除的变量临时保存起来，再次利用
+    //     因为本来要删除的变量没有删除，导致占用内存
+
+    //     可以在外部修改内部的值
+    //     一不小心，外部修改内部的值，使用闭包的时候慎用
+
+</script>
+
+</html>

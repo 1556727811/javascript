@@ -1,0 +1,82 @@
+<!--
+ * @Description: 
+ * @Author: YH
+ * @Date: 2021-10-22 11:27:47
+ * @LastEditTime: 2021-10-22 13:56:37
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class MyPromise {
+        constructor (fn) {
+          this.state = 'padding'
+          this.successList = []
+          this.failList = []
+          fn(this.resolveFn.bind(this), this.rejectFn.bind(this))
+        }
+        then (successFn, failFn) {
+          if (typeof successFn == 'function') {
+            this.successList.push(successFn)
+          }
+          if (typeof failFn == 'function') {
+            this.failList.push(failFn)
+          }
+        }
+        catch (failFn) {
+          if (typeof failFn == 'function') {
+            this.failList.push(failFn)
+          }
+        }
+        resolveFn (res) {
+          this.state = 'fullfilled'
+          this.successList.forEach(item => {
+            item(res)
+          })
+        }
+        rejectFn (rej) {
+          this.state = 'rejected'
+          this.failList.forEach(item => {
+            item(rej)
+          })
+          throw Error(rej)
+        }
+      }
+      const p2 = new MyPromise((res, rej) => {
+        setTimeout(() => {
+          if (false) {
+            res('ok')
+          } else {
+            rej('false')
+          }
+        }, 500)
+      })
+      p2.then(
+        res => {
+          console.log(res)
+        },
+        rej => {
+          console.log(111);
+          console.log(rej)
+        }
+      )
+      // p2.catch(rej => {
+      //   console.log(rej)
+      // })
+      // const aa = async () => {
+      //   let data = await p2
+      // }
+      // console.log(aa())
+      // aa().then(res => {
+      //   console.log(111)
+      //   console.log(res)
+      // })
+    </script>
+  </body>
+</html>

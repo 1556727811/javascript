@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        ul{
+            list-style:none;
+            padding-bottom:20px;
+        }
+        .item{
+            cursor: pointer;
+            height:24px;
+            line-height:24px;
+            background-color:#9c9c9c;
+            border:1px solid #d9d9d9;
+            border-radius:4px;
+            color:#fff;
+            padding:10px;
+            user-select: none;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+        <ul
+        ref="parentNode"
+        @mouseover="onMouseOver"
+        @mouseup="onMouseUp">
+            <li
+            ref="li"
+            v-for="(item,index) in data"
+            :key="index"
+            class="item"
+            @mouseDown="(event)=>{onMouseDown(event,index)}"
+            >{{item}}</li>
+        </ul>
+    </div>
+  </body>
+  <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+            data:[1,2,3,4,5,6],
+            isDonw:false,
+            draging:null,
+            dragStartPos:0
+        },
+        mounted () {
+            //为了防止火狐浏览器拖拽的时候以新标签打开，此代码真实有效
+            document.body.ondrop = function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            document.onmouseup=()=>{
+                if(this.isDonw)
+                    this.onMouseUp()
+            };
+        },
+        computed:{
+            nodes(){
+                return Array.from(this.$refs.parentNode.children)
+            },
+            itemHeight(){
+                return this.nodes[0].offsetHeight;
+            }
+        },
+        methods:{
+            onMouseDown(event,index){
+                this.isDonw=true;
+                this.draging=this.$refs['li'][index];
+                this.dragStartPos=this.draging.getBoundingClientRect().top;
+            },
+            onMouseOver(event){
+                if(this.isDonw){
+                    let target=event.target;
+                    let drag=this.draging;
+                    let Index=this._index(target);
+ 
+                    if(target.nodeName!='UL' && target!=drag){
+                        let targetTop=target.getBoundingClientRect().top;
+                        let dragTop=drag.getBoundingClientRect().top;
+                        let targetOffset=targetTop-dragTop;
+                        let dragOffset=targetTop-this.dragStartPos;
+ 
+                        //样式变化
+                        let targetStyle= target.style.transform;
+                        let lastTransform=0;
+                        if(targetStyle){
+                            lastTransform=this.getTransform(targetStyle);
+                        }
+                        drag.style.transform=`translateY(${dragOffset}px)`;
+                        target.style.transform=`translateY(${lastTransform-targetOffset}px)`;
+ 
+                        
+                    }
+                }
+            },
+            onMouseUp(){
+                 
+ 
+                this.isDonw=false;
+                this.draging=null;
+                this.dragStartPos=0;
+ 
+                let res=[]
+                for(let i=0;i<this.nodes.length;i++){
+                    let item=this.nodes[i];
+                    let transform=this.getTransform(item.style.transform);
+                    if(transform){
+                        res[i+transform/this.itemHeight]=this.data[i];
+                    }else{
+                        res[i]=this.data[i];
+                    }
+                    item.style.transform='';
+                    item.style.transition='';
+                }
+                this.data=[...res];
+                console.log(res)
+            },
+            getTransform(style){
+                if(style){
+                    let firstIndex=style.indexOf('(')+1;
+                    let lastIndex=style.indexOf(')')-2;
+                    return parseInt(style.substring(firstIndex,lastIndex))
+                }
+            },
+            _index(el){
+                let domData=Array.from(this.$refs.parentNode.childNodes);
+                return domData.findIndex(i=>i.innerText==el.innerText);
+            }
+        }
+    })
+  </script>
+</html>

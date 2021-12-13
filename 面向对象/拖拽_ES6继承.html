@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽</title>
+    <style>
+        .box1 {
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+        }
+
+        .box2 {
+            width: 100px;
+            height: 100px;
+            background: blue;
+            position: absolute;
+            left: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box1"></div>
+    <div class="box2"></div>
+</body>
+<script>
+    class Drag {
+        constructor(ele) {
+            this.ele = ele;
+            this.init();
+        }
+        init() {
+            var that = this;
+            this.m = this.move.bind(this)
+            this.u = this.up.bind(this)
+            this.ele.addEventListener("mousedown", function (eve) {
+                var e = eve || window.event;
+                that.disX = e.offsetX;
+                that.disY = e.offsetY;
+                document.addEventListener("mousemove", that.m)
+                document.addEventListener("mouseup", that.u)
+            })
+        }
+        move(eve) {
+            var e = eve || window.event;
+            this.ele.style.left = e.clientX - this.disX + "px"
+            this.ele.style.top = e.clientY - this.disY + "px"
+        }
+        up() {
+            console.log(this);
+            console.log(111);
+            document.removeEventListener("mousemove", this.m)
+            document.removeEventListener("mouseup", this.u)
+        }
+    }
+
+
+
+    var box1 = document.querySelector(".box1")
+    new Drag(box1)
+    class SmallDrag extends Drag {
+        constructor(ele) {
+            super(ele)
+        }
+        move(eve) {
+            console.log(222);
+            var e = eve || window.event;
+            var l = e.clientX - this.disX;
+            var t = e.clientY - this.disY;
+            console.log(l);
+            if (l < 0) l = 0;
+            if (t < 0) t = 0
+            this.ele.style.left = l + "px"
+            this.ele.style.top = t + "px"
+        }
+    }
+    var box2 = document.querySelector(".box2")
+    new SmallDrag(box2)
+
+</script>
+
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>webWorker</title>
+  </head>
+  <body>
+    <script>
+      var worker = new Worker('worker.js')
+      worker.postMessage('123456')
+
+      worker.onmessage = function (e) {
+        console.log(e.data)
+      }
+    </script>
+  </body>
+</html>

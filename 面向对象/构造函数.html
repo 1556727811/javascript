@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+
+<body>
+	<div>
+		<img src="1.png" alt="">
+	</div>
+
+</body>
+<style>
+	div {
+		width: 50px;
+		height: 50px;
+		background: #409eff
+	}
+</style>
+
+</html>
+<script>
+	// function peopleSay() {
+	// 	console.log(111)
+	// 	// alert(111)
+	// }
+	// var p1 = new peopleSay();
+	// console.log(p1);
+
+	// let arr = [4, 7, 1, 3, 8, 0]
+	// for (var i = 0; i < arr.length; i++) {
+	// 	console.log(i)
+	// 	for (var j = 0; j < arr.length - i; j++) {
+	// 		console.log('j', j);
+	// 		if (arr[j] > arr[j + 1]) {
+	// 			var ls = arr[j]
+	// 			arr[j] = arr[j + 1]
+	// 			arr[j + 1] = ls
+	// 		}
+	// 	}
+	// }
+	// console.log(arr)
+
+
+
+	// console.log('---------');
+	// for (let i = 0; i < arr.length; i++) {
+	// 	// console.log(i)
+	// 	console.log(arr[i])
+	// }
+
+	//工厂模式
+	// function peopleSay(name) {
+	// 	// console.log(this);
+	// 	// 原料
+	// 	var obj = {}
+	// 	// 加工
+	// 	obj.name = name;
+	// 	obj.say = function () {
+	// 		console.log(this.name);
+	// 	}
+	// 	// 出厂
+	// 	return obj
+	// }
+
+	// peopleSay()//无法执行peoplesay里面的say函数
+	// peopleSay('admin').say()
+	// console.log(peopleSay('zhangsan').say);  //say函数
+	// console.log(peopleSay('zhangsan').say());  // 打印出 zhangsan 后 ，又打印了个undefined，clg 的时候会执行里面的函数，应该clg无法访问函数里面return的对象
+	// function a() {
+	// 	let b = {}
+	// }
+	// console.log(a.b);//undefined
+	// var p1 = peopleSay('admin')
+	// console.log(p1.say());  // 为什么是undefined?
+	// p1.say()
+	// var p2 = peopleSay('b2')
+	// p2.say()
+	// var p3 = peopleSay('user')
+	// p3.say()
+
+	// 新的工厂模式
+	// function PeopleSay(name){
+	// 	// this指向将来new出来的对象
+	// 	this.name = name
+	// 	this.say = function(){
+	// 		console.log(this.name);
+	// 	}
+	// }
+	// var p1 = new PeopleSay('admin')
+	// p1.say()
+
+	// var p2 = new PeopleSay('user')
+	// p2.say()
+
+	// var p3 = peopleSay('zhangsan')
+	// console.log(p3); // 函数没有返回值打印出undefined
+	// console.log(name);// 全局name 没有使用new方法执行函数的话函数里的this指向window 会创建全局变量
+	// console.log(say);// 全局say
+
+	// 构造函数的方法
+	// function People(name, age, sex) {
+	// 	this.name = name;
+	// 	this.age = age;
+	// 	this.sex = sex;
+
+	// }
+	// People.prototype.say = function () {
+	// 	console.log(this.name + '---' + this.name + '---' + this.sex);
+	// }
+	// var p1 = new People('a', 'b', 'c')
+	// p1.say()
+	// var p2 = new People('1', '2', '3')
+	// p2.say()
+	// console.log(p1.say === p2.say);//true
+
+	// 构造函数优化
+	// function Fn(){}
+	// Fn.prototype.show=function(){}//原来的写法
+	// console.log(Fn.prototype);
+	// Fn.prototype={
+	// 	constructor :Fn,//为了方便在prototype上写方法，所以重构了Fn的prototype，但是重构的话本来函数的contructor就没了，所以需要手动赋值，指向这个函数本身
+	// 	show:function(){},
+	// 	say:function(){}
+	// }
+	// console.log(Fn.prototype);
+
+	// 类写法
+
+
+	// js没有类的概念，原来的构造函数就是在模仿类的写法
+	// class Fn {
+	// 	constructor() {
+	// 		this.name = 'admin'
+	// 	}
+	// 	// 从类上面创建方法
+	// 	init() {
+	// 		console.log(this.name);
+	// 	}
+	// }
+	// var fn = new Fn()
+	// console.log(fn);
+
+
+	// function Fn1() { // 构造函数部分模拟了类写法中的constructor部分
+	// 	this.name = 'admin'
+	// }
+	// Fn1.prototype.init = function () { }//从构造函数创建方法
+	// var fn1 = new Fn1()
+	// console.log(fn1);
+
+
+
+
+
+
+</script>

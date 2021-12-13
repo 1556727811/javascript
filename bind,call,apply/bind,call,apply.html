@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  // apply
+  //   let arr2 = [1, 2, [3]]
+  //   let c = [].concat.apply([], arr2) //此方法只能扁平化一层
+  //   console.log(c)
+
+  //   var fav = '张三'
+  //   function shows() {
+  //     console.log(this) // 下面的shows()调用的该函数,shis指向window
+  //   }
+  //   shows()
+
+  var name = '小王'
+  var age = 18
+  let obj = {
+    name: '小张',
+    objAge: this.age, // 18 执行上下文,this指向为全局
+    fun: function () {
+      console.log('this')
+      console.log(this) // this指向这个对象
+      console.log(this.age) // undefined
+    },
+    myFun: function (fm, t) {
+      console.log(this.name + '年龄' + this.age, '来自' + fm + '去往' + t)
+    },
+  }
+  //   obj.myFun()
+
+  var db = {
+    name: '德玛',
+    age: 19,
+  }
+  obj.myFun.call(db) // 德玛年龄19
+  obj.myFun.apply(db) // 德玛年龄19
+  obj.myFun.bind(db)() // 德玛年龄19. bind返回一个新的函数,需要调用一下
+
+  obj.myFun.call(db, '成都', '上海') // 德玛 年龄 99  来自 成都去往上海
+  obj.myFun.apply(db, ['成都', '上海']) // 德玛 年龄 99  来自 成都去往上海
+  obj.myFun.bind(db, '成都', '上海')() // 德玛 年龄 99  来自 成都去往上海
+  obj.myFun.bind(db, ['成都', '上海'])() // 德玛 年龄 99  来自 成都, 上海去往 undefined
+</script>

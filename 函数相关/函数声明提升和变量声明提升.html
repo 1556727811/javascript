@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  // function test0 (){
+  // 	return 0
+  // }
+  // var test1;
+  // var test2 ;
+  // alert(test0)//function (){return 0}
+  // alert(test1)//undefined
+  // alert(test2)//undefined
+  // test1 =	function (){
+  // 	return 1
+  // }
+  // test2 = new Function ( "return 2")
+
+  // function test() {
+  //   alert(typeof test0)
+  // }
+  // alert(typeof test0)
+  // function test0() {
+  //   return 0
+  // }
+  // var test0 = 'hello world'
+  // alert(typeof test0)
+
+  // {
+  //   b = 90
+  //   function b() {}
+  //   b = 30
+  //   console.log(b)
+  // }
+  // console.log(b) // 90
+  /*  上面代码的执行顺序
+  	{
+  		function (){}
+  		b = 90//  es6 中为了兼容 es5,找不到变量 b 会在上级作用于创建 b,这里的 b 是外层的
+  		b = function (){} // 这里的 b 是内层的,应该是因为函数声明在块级作用域内,
+  		b = 30
+  	}
+  	*/
+  // 'use strict' //严格模式下会有所不同,块级作用域里面的 a 定会指向内部的 a
+  var a = 10
+  {
+    console.log(window.a, a)
+    a = 99
+    console.log(window.a, a)
+    function a() {}
+    console.log(window.a, a)
+    a = 30
+    console.log(window.a, a)
+  }
+  console.log(a) // 99
+</script>

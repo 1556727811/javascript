@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽</title>
+    <style>
+        .box1 {
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+        }
+
+        .box2 {
+            width: 100px;
+            height: 100px;
+            background: blue;
+            position: absolute;
+            left: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box1"></div>
+    <div class="box2"></div>
+</body>
+<script>
+    function Drag(ele) {
+        this.ele = ele;
+        this.init()
+    }
+    Drag.prototype.init = function () {
+        var that = this;
+        // 因为此处使用监听式绑定和删除事件，需要保证事件处理函数的一致性，
+        // 以及事件处理函数中this的指向，所以提前将事件处理函数的this指向实例，
+        // 在绑定和删除的时候使用同一个修改之后的事件处理函数
+        this.m = this.move.bind(this)
+        this.u = this.up.bind(this)
+        this.ele.addEventListener("mousedown", function (eve) {
+            var e = eve || window.event;
+            that.disX = e.offsetX;
+            that.disY = e.offsetY;
+            document.addEventListener("mousemove", that.m)
+            document.addEventListener("mouseup", that.u)
+            // document.addEventListener("mouseup", that.up.bind(that))// 这样绑定只是改变了this指向，但是删除的时候没办法通过这个this找到那个函数
+        })
+    }
+    Drag.prototype.move = function (eve) {
+        console.log(111);
+        var e = eve || window.event;
+        this.ele.style.left = e.clientX - this.disX + "px"
+        this.ele.style.top = e.clientY - this.disY + "px"
+    }
+    Drag.prototype.up = function () {
+        document.removeEventListener("mousemove", this.m)
+        document.removeEventListener("mouseup", this.u)
+    }
+    var box1 = document.querySelector(".box1")
+    new Drag(box1)
+    var box2 = document.querySelector(".box2")
+    function SmallDrag(ele) {
+        Drag.call(this, ele)
+    }
+    for (var i in Drag.prototype) {
+        SmallDrag.prototype[i] = Drag.prototype[i]
+    }
+    SmallDrag.prototype.move = function (eve) {
+        console.log(222);
+        var e = eve || window.event;
+        var l = e.clientX - this.disX;
+        var t = e.clientY - this.disY;
+        console.log(l);
+        if (l < 0) l = 0;
+        if (t < 0) t = 0
+
+
+        this.ele.style.left = l + "px"
+        this.ele.style.top = t + "px"
+    }
+    new SmallDrag(box2)
+
+</script>
+
+</html>

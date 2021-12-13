@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  /**
+   * 简单实现一个QueryString，具有parse和stringify的能力。
+   *
+   * parse，用于把一个URL查询字符串解析成一个键值对的集合。
+   * 输入：查询字符串 'foo=bar&abc=xyz&abc=123'
+   * 输出：一个键值对的对象
+   * {
+   *   foo: 'bar',
+   *   abc: ['xyz', '123'],
+   * }
+   *
+   * stringify，相反的，用于序列化给定对象的自身属性，生成URL查询字符串。
+   * 输入：一个键值对的对象
+   * {
+   *   foo: 'bar',
+   *   abc: ['xyz', '123'],
+   * }
+   * 输出：查询字符串 'foo=bar&abc=xyz&abc=123'
+   *
+   * 测试代码
+   * QueryString.parse('foo=bar&abc=xyz&abc=123');
+   * QueryString.stringify({ foo: 'bar', abc: ['xyz', '123'], });
+   */
+
+  function QueryString() {}
+
+  QueryString.parse = function (str) {
+    const items = str.split('&')
+    const map = {}
+    if (items.length === 0) return map
+    items.forEach((item) => {
+      const [key, value] = item.split('=')
+      if (map[key]) {
+        map[key] = Array.isArray(map[key]) ? [...map[key], value] : [map[key], value]
+      } else {
+        map[key] = value
+      }
+    })
+    return map
+  }
+
+  QueryString.stringify = function (obj) {
+    const items = Object.entries(obj)
+    const append = (first, second) => {
+      if (first === '') return second
+      return `${first}&${second}`
+    }
+    let result = ''
+    items.forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        result = append(result, value.map((val) => `${key}=${val}`).join('&'))
+      } else {
+        result = append(result, `${key}=${value}`)
+      }
+    })
+    return result
+  }
+
+  /**
+   * 说明：实现一个方法，用于比较两个版本号（version1、version2），
+   * 如果version1 > version2，返回1；如果version1 < version2，返回-1，其他情况返回0。
+   * 版本号规则`x.y.z`，xyz均为大于等于0的整数，至少有x位。
+   *
+   * 示例：
+   * compareVersion('0.1', '1.1.1'); // 返回-1
+   * compareVersion('13.37', '1.2 '); // 返回1
+   * compareVersion('1.1', '1.1.0'); // 返回0
+   */
+
+  function compareVersion(ver1, ver2) {
+    const ver1Arr = ver1.split('.')
+    const ver2Arr = ver2.split('.')
+    const length = ver1Arr.length > ver2Arr.length ? ver1Arr.length : ver2Arr.length
+    let preIsSame = true
+    for (let i = 0; i < length; i++) {
+      if (ver2Arr[i] === undefined || ver1Arr[i] === undefined) {
+        return 0
+      }
+      if (ver1Arr[i] < ver2Arr[i] && preIsSame) {
+        return -1
+      }
+      if (ver1Arr[i] === ver2Arr[i]) {
+        preIsSame = true
+      }
+      if (ver1Arr[i] > ver2Arr[i]) {
+        preIsSame = false
+      }
+    }
+    return 1
+  }
+
+  /**
+   * 假设你是一个专业的劫匪，你计划去打劫一条街上的家舍，每家有一定数量的钱财，
+   * 但相邻两家有一个彼此连接的安全系统，一旦相邻两家在同一晚被打劫，那么这个安全系统就会自动报警。
+   *
+   * 给你一个由非负整数组成的数组，用来代表每家的钱财，在不让安全系统自动报警的前提下，
+   * 求你能打劫到的钱财的最大数量。
+   *
+   * 比如 [2, 0, 0, 4, 5]，能打劫到的最大钱财是7
+   */
+
+  function getMax(arr) {
+    let max = 0
+    const length = arr.length
+    for (let i = length - 1; i >= 0; i--) {
+      const nextIndex = i + 2
+      if (nextIndex > length - 1) continue
+      arr[i] = arr[i] + arr[nextIndex]
+      console.log(arr[i])
+      if (arr[i] > max) {
+        max = arr[i]
+      }
+    }
+    return max
+  }
+</script>

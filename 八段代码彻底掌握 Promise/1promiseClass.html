@@ -1,0 +1,77 @@
+<!--
+ * @Description: 
+ * @Author: YH
+ * @Date: 2021-10-18 10:45:27
+ * @LastEditTime: 2021-10-19 11:54:41
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // const PENDING = 'pending'
+      // const RESOLVED = 'resloved'
+      // const REJECTED = 'rejected'
+      class MyPromise {
+        constructor (fn) {
+          this.successList = []
+          this.failList = []
+          this.state = 'padding'
+          fn(this.resolveFn.bind(this), this.rejectFn.bind(this))
+        }
+        then (successFn, failFn) {
+          console.log(successFn)
+          console.log('then1')
+          if (typeof successFn == 'function') {
+            console.log('then2')
+            this.successList.push(successFn)
+          }
+          if (typeof failFn == 'function') {
+            this.failList.push(failFn)
+          }
+        }
+        catch (failFn) {
+          if (typeof failFn == 'function') {
+            this.failList.push(failFn)
+          }
+        }
+        resolveFn (res) {
+          console.log('fullfilled')
+          this.state = 'fullfilled'
+          this.successList.forEach(item => {
+            console.log('fullfilled2')
+            item(res)
+          })
+        }
+        rejectFn (res) {
+          this.state = 'rejected'
+          this.failList.forEach(item => {
+            item(res)
+          })
+          throw Error(res)
+        }
+      }
+      var p2 = new MyPromise((resolve, reject) => {
+        console.log('new')
+        setTimeout(() => {
+          if (true) {
+            console.log('setTime')
+            resolve('true')
+          } else {
+            reject('false')
+          }
+        }, 2000)
+      })
+      p2.then(res => {
+        console.log('p2.then')
+        console.log(res)
+      })
+    </script>
+  </body>
+</html>

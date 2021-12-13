@@ -1,0 +1,32 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: YH
+ * @Date: 2021-09-08 10:31:22
+ * @LastEditors: Do not Edit
+ * @LastEditTime: 2021-09-08 10:31:23
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // 去除字符串内所有的空格：
+      str = str.replace(/\s*/g, '')
+
+      // 去除字符串内两头的空格：
+      str = str.replace(/^\s*|\s*$/g, '')
+
+      // 去除字符串内左侧的空格：
+      str = str.replace(/^\s*/, '')
+
+      // 去除字符串内右侧的空格：
+      str = str.replace(/(\s*$)/g, '')
+    </script>
+  </body>
+</html>

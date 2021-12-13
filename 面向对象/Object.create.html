@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Object.create</title>
+  </head>
+
+  <body>
+    <script>
+      // Object.create
+      // let a = { a: 1 }
+      // console.log('a', a)
+
+      // 除了自身属性a之外，原型链上没有任何属性
+      // var o = Object.create(null, {
+      // var o = Object.create(Object, {
+      //多了一层proto嵌套
+      // var o = Object.create({},{ // o.__proto__ === a.__proto__ false
+      // var o = Object.create(Object.prototype, { // o.__proto__ === a.__proto__  true
+      //     a: {
+      //       writable: true,
+      //       configurable: true,
+      //       value: '1',
+      //     },
+      //   }
+      // )
+
+      // console.log('o', o)
+      // console.log(Object.prototype)
+      // prototype 一般是函数的属性，一般对象是没有的
+      // console.log(o.prototype) // undefined
+      // console.log(a.prototype) // undefined
+      // console.log('o.prototype === a.prototype', o.prototype === a.prototype) //true undefined === undefined。   原型链会一直向上找，所以是true(这理解不对)
+      // console.log('o.prototype === a.prototype', o.__proto__ === a.__proto__) //false
+      // let c = Object.create(null, { a: { value: '1' } })
+      // console.log('c', c)
+      // configurable	表示新创建的对象是否是可配置的，即对象的属性是否可以被删除或修改，默认false
+      // enumerable	对象属性是否可枚举的，即是否可以枚举，默认false
+      // writable	对象是否可写，是否或以为对象添加新属性，默认false
+      // get	对象getter函数，默认undefined
+      // set	对象setter函数，默认undefined
+
+      // 基类
+      function Site() {
+        this.name = 'Site'
+        this.domain = 'domain'
+        console.log(2)
+      }
+
+      Site.prototype.newCreate = function (name, domain) {
+        this.name = name
+        this.domain = domain
+      }
+
+      // 子类
+      function Itbilu() {
+        console.log(1)
+        Site.call(this) //调用基类的构造函数
+      }
+
+      // 继承父类
+      Itbilu.prototype = Object.create(Site.prototype)
+
+      // 创建类实例
+      var itbilu = new Itbilu()
+      var site = new Site()
+      console.log(site)
+      console.log(itbilu)
+      // 测试 itbilu 对象的原型链中是否存在 Site 构造函数的prototype
+      console.log(itbilu instanceof Site) // true
+      console.log(itbilu instanceof Itbilu) // true
+
+      // itbilu.newCreate('IT笔录', 'itbilu.com')
+      // itbilu.name // 'IT笔录'
+      // itbilu.domain // 'itbilu.com'
+    </script>
+  </body>
+</html>

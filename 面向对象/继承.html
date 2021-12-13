@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>继承</title>
+  </head>
+
+  <body></body>
+  <script>
+    // 继承
+
+    // 1.构造函数的继承
+    // function Fn(){
+    //     this.name = 'admin'
+    // }
+    // Fn.prototype.init = function(){
+    //     console.log('hello word');
+    // }
+    // // 都继承了Fn
+    // var f = new Fn()
+    // var f2 = new Fn()
+    // f.init()
+    // f2.init()
+
+    // 修改this指向来实现继承：函数方法：bind
+    // var newFn = fn.bind(thisObj, otherArg1, otherArg2, otherArg3, ...)
+    //的带一个新的函数，如果需要执行，需要再加个小括号
+    // newFn()
+
+    // 函数方法：call/apply
+    // 功能同bind，bind执行完得到新函数，call和apply执行完得到新函数自动执行
+
+    // var obj = {
+    //     name: 'obj',
+    //     show: function () {
+    //         console.log(this);
+    //     }
+    // }
+    // var obj2 = {
+    //     name: 'obj2',
+    // }
+    // obj.show.bind(obj2)()
+    // obj.show.bind(obj2, oth1, oth2, oth3)(a,b,c)//bind可以合并传入的参数
+    // obj.show.call(obj2, oth1, oth2, oth3)
+    // obj.show.call(obj2, [oth1, oth2, oth3])
+
+    // 2.使用call和apply继承:修改this指向，只能继承构造函数中的内容，不能继承原型
+
+    // function Father(s1,a) {
+    //     this.skill = s1;
+    //     this.show = function () {
+    //         console.log(this.skill);
+    //     }
+    // }
+    // function Son(s1) {
+    //     //在son里面执行Father，然后再改变Father的this指向Son，通过call传参
+    //     // Father.call(this, s1)
+    //     // Father.apply(this, [s1])
+    //     Father.bind(this,s1)()
+    // }
+    // var f = new Father('铁匠')
+    // f.show()
+    // var s = new Son('打铁')
+    // s.show()
+
+    // function Father(s1, a) {
+    //     this.skill = s1;
+    // }
+    // Father.prototype.show = function () {
+    //     console.log(this.skill);
+    // }
+    // function Son(s1) {
+    //     Father.call(this, s1)
+    // }
+    // var f = new Father('铁匠')
+    // f.show()
+    // var s = new Son('打铁')
+    // s.show()//没办法继承原型
+
+    // 3.原型继承：只能继承原型，不能继承构造函数
+
+    // 只能继承原型，无法继承构造函数里面的属性
+    // function Father() {
+    //     this.skill = '铁匠';
+    // }
+    // Father.prototype.show = function () {
+    //     console.log(this.skill);
+    // }
+
+    // 把属性也写在原型上面， 可以实现继承但是不好传参
+    // function Father() {}
+    // Father.prototype.skill = '铁匠'
+    // Father.prototype.show = function () {
+    //     console.log(this.skill);
+    // }
+
+    // function Son() { }
+    // Son.prototype = Father.prototype
+    // var f = new Father()
+    // f.show()
+    // var s = new Son('打铁')
+    // console.log(s);
+
+    // 在原型的方法里面声明
+    // function Father() {}
+    // Father.prototype.show = function (s1) {
+    //     this.skill = s1
+    //     console.log(this.skill);
+    // }
+    // function Son() { }
+    // // Son.prototype = Father.prototype;//引用传递，传递的只是内存地址，堆里面的数据还是只有一个,这里修改son的方法会影响Father的方法
+    // for(var i in Father.prototype){
+    //     Son.prototype[i] = Father.prototype[i]
+    // }
+    // Son.prototype.show=function(){
+    //     console.log('son 二次修改');
+    // }
+    // var f = new Father()
+    // f.show('铁匠')
+    // var s = new Son()
+    // s.show('打铁')
+
+    // 4.混合继承
+    // function Father(s1) {
+    //     this.skill = s1
+    // }
+    // Father.prototype.show = function (s1) {
+    //     console.log(this.skill);
+    // }
+    // function Son(s1) {
+    //     Father.call(this, s1)
+    // }
+    // for (var i in Father.prototype) {
+    //     Son.prototype[i] = Father.prototype[i]
+    // }
+    // var f = new Father('铁匠')
+    // f.show()
+    // var s = new Son('打铁')
+    // s.show()
+
+    // 5.原型链继承：给子对象设置一个原型链为父对象的实例，不方便传参
+    // function Father() {
+    //     this.skill = '铁匠'
+    // }
+    // Father.prototype.show = function () {
+    //     console.log(this.skill);
+    // }
+    // function Son() { }
+    // // 吧子对象的原型链设置成父对象的实例
+    // Son.prototype = new Father()//吧son的原型对象只想Father，因为原型链一直向上寻找，就可以拿到Father的属性和访问Father原型上面的方法
+    // var f = new Father()
+    // f.show()
+    // var s = new Son()
+    // s.show()
+    // console.log(s);
+    // function Son1() { }
+    // var s1 = new Son1()
+    // console.log(s1);
+
+    // ES6 继承:class继承  等同于call/apply继承+原型链继承
+    // class Father{
+    //     constructor(s1,s2,s3){
+    //         this.skill = s1
+    //         console.log(arguments);
+    //     }
+    //     show(){
+    //         console.log(this.skill);
+    //     }
+    // }
+    // class Son extends Father{
+    //     constructor(s1,...s2){
+    //         super(s1,...s2)
+    //     }
+    // }
+    // // var f = new Father('铁匠')
+    // // f.show()
+    // var s = new Son('打铁','111','222')
+    // s.show()
+    // console.log(s);
+
+  </script>
+</html>

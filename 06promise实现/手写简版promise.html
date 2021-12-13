@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>手写promise</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    // 创建了三个常量用于表示状态
+    const PENDING = 'pending'
+    const RESOLVED = 'resolved'
+    const REJECTED = 'rejected'
+
+    function MyPromise(fn) {
+        // 创建了常量 that，因为代码可能会异步执行，用于获取正确的 this 对象
+        const that = this
+        //定义一个变量state   一开始 Promise 的状态应该是 pending
+        that.state = PENDING
+        // value 变量用于保存 resolve 或者 reject 中传入的值
+        that.value = null
+        // resolvedCallbacks 和 rejectedCallbacks 用于保存 then 中的回调
+        // 因为当执行完 Promise 时状态可能还是等待中，这时候应该把 then 中的回调保存起来用于状态改变时使用
+        that.resolvedCallbacks = []
+        that.rejectedCallbacks = []
+
+        // 首先下面两个函数都得判断当前状态是否为等待中，因为规范规定只有等待态才可以改变状态
+        // 定义resolv函数
+        function resolve(value) {
+            if (that.state === PENDING) {
+                that.state = RESOLVED
+                that.value = value
+                //这里面是then的回调函数 执行then的回调函数  并且把value传进去了
+                console.log(that.resolvedCallbacks)  // 目前是空的
+                that.resolvedCallbacks.map(cb => cb(that.value))
+            }
+        }
+        // 定义reject函数
+        function reject(value) {
+            if (that.state === PENDING) {
+                that.state = REJECTED
+                that.value = value
+                that.rejectedCallbacks.map(cb => cb(that.value))
+            }
+        }
+        // 待完善执行 fn 函数
+        //  实现如何执行 Promise 中传入的函数了
+        // 执行传入的参数并且将之前两个函数当做参数传进去
+        try {
+            fn(resolve, reject)
+        } catch (e) {
+            // 可能执行函数过程中会遇到错误，需要捕获错误并且执行 reject 函数
+            reject(e)
+        }
+
+    }
+
+
+
+       
+      // 1 如果状态是pending 说明 promise传入的fn里面存在异步任务
+      // 导致resolve或者reject延迟执行了  所以状态一直是pengding 
+      // fn执行完同步任务后  异步任务没有执行完  就继续执行then了
+      // 这个时候then发现状态还是pengding   就把自己的回调函数推到promise维护的回调函数队列里面
+      // then推完任务后， fn里面的异步开始执行了  resolve开始执行   会读取回调函数队列  循环执行then回调函数，并改变状态为resolved
+
+      // 2 如果状态不是pending  说明promise里面的fn没有异步任务  resolve也已经执行完了  状态改变了  
+      // 这时候  then就不需要把回调函数推入队列  而是直接同步执行了
+    
+    // 最后来实现最简单的then函数
+    MyPromise.prototype.then = function (onFulfilled, onRejected) {
+        const that = this
+        // 判断两个参数是否为函数类型，因为这两个参数是可选参数
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v
+        onRejected =
+            typeof onRejected === 'function'
+                ? onRejected
+                : r => {
+                    throw r
+                }
+        // 如果状态是等待   就往 存then回调函数的数组里面   放入then的回调函数
+        if (that.state === PENDING) {
+            that.resolvedCallbacks.push(onFulfilled)
+            that.rejectedCallbacks.push(onRejected)
+        }
+        // 如果状态是成功   就拿到结果并且把结果当成参数传进去  并执行函数
+        if (that.state === RESOLVED) {
+            onFulfilled(that.value)
+        }
+        if (that.state === REJECTED) {
+            onRejected(that.value)
+        }
+    }
+
+    // 执行结果是1 3
+    new MyPromise(function(resolve,reject){
+    //这里是同步的  一定会执行 resolve    状态一定是RESOLVED
+        console.log(2);
+        resolve(3)         //把value变成3   成功回调队列此时是空的
+        // return 5   这个return 是争对promise的参数函数的  resolve里面的参数  才是then里面拿到的
+    }).then(function(res){
+        // 由于promise里面传参函数  没有异步任务 所以会同步执行了  resolve  状态已经变成了rejected   然后继续执行then  
+        // resolve的参数  就是promise保存的结果值  会当作成功回调函数和失败回调函数的参数传进去  所以res===3
+        console.log(res)   // 取到value
+    },function(){
+        //new Error();
+
+    })
+
+    new MyPromise((resolve, reject) => {
+        //如果这里是个异步  就会先执行到下面的then 状态会是pending 把回调函数push进去   状态一定会变成resolve  then回调才会执行
+        setTimeout(() => {
+            resolve(1)
+            console.log(2)
+        }, 2000)
+    }).then(value => {
+        // 进入到then 的时候  promise一定会得到一个状态   
+        // 执行到.then的时候  这个回调函数还没有执行  只是被放到了  resolvedCallbacks数组里面   
+        // 所以一定是 原型里面的 resolve函数执行了  then里面的回调才会执行  
+        // 这么做的好处是  让异步看起来有顺序的执行   
+        // 所以打印的顺序是  resolvedCallbacks  然后是下面的console    然后是 上面的console.log(1)
+        // 因为简单版本里面  resolve是同步的 实际上不是的
+        console.log(value)
+    })
+</script>
+
+</html>

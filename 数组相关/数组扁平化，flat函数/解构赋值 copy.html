@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    let dismantleArray = function (arr, strArr, obj = {}) {
+        var strArr = JSON.parse(strArr.replace(/(\w)/g, '"$1"'))
+        let reduceArr = function (curArr, indexArr) {
+            curArr.reduce((pre, cur, index, curArr) => {
+                if (Array.isArray(cur)) {
+                    return Array.isArray(indexArr[index]) ? reduceArr(cur, indexArr[index]) : reduceArr(cur, indexArr[++index])
+                } else {
+                    return Array.isArray(indexArr[index]) ? obj[cur] = undefined : obj[cur] = indexArr[index];
+                }
+            }, indexArr)
+        }
+        strArr.reduce((pre, cur, index) => {
+            Array.isArray(cur) ? reduceArr(cur, arr[index]) : obj[cur] = arr[index]
+        }, [])
+        return obj
+    }
+    const res = dismantleArray([1, [2, 3, 6, 7[4, 10]], 5], '[a,[b,[c,z],e],d,f]')
+    console.table(res);
+</script>

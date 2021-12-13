@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bind</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    // arguments 是一个对应于传递给函数的参数的类数组对象
+    //   function a(){
+    //     console.log(arguments);
+    //   }
+    //   a(); // Arguments [callee: ƒ, Symbol(Symbol.iterator): ƒ]
+    //   a(1,2,3); // Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+
+
+    // var a = {
+    //     b: function () {
+    //         let that = this;
+    //         var func = function () {
+    //             console.log(this.c);//这里的this指向window
+    //             console.log(that.c);
+    //         }
+    //         func();
+    //     },
+    //     c: 'hello'
+    // }
+
+    // var a = {
+    //     b: function () {
+    //         var func = function () {
+    //             console.log(this.c);
+    //         }.bind(this)
+    //         func();
+    //         // var func = function () {
+    //         //     console.log(this.c);
+    //         // }
+    //         // func.bind(this)();
+    //     },
+    //     c: 'hello'
+    // }
+    // a.b(); // undefined 这里的this指向的是全局作用域
+    // console.log(a.c); // hello
+
+    // 分析：这里的bind方法会把它的第一个实参绑定给f函数体内的this，所以里的this即指向{x:1}对象；
+    // 从第二个参数起，会依次传递给原始函数，这里的第二个参数2即是f函数的y参数；
+    // 最后调用m(3)的时候，这里的3便是最后一个参数z了，所以执行结果为1+2+3=6
+    // 分步处理参数的过程其实是一个典型的函数柯里化的过程（Curry）
+    // function f(y, z) {
+    //     // console.log(this);
+    //     // console.log(arguments);
+    //     // console.log(y);//2
+
+
+
+    //     // console.log(z);//3
+    //     return this.x + y + z;
+    // }
+    // var m = f.bind({ x: 1 }, 2);
+    // console.log(m(3)); // 6
+
+    // 分析：直接调用a的话，this指向的是global或window对象，所以会报错；
+    // 通过bind或者call方式绑定this至document对象即可正常调用
+    var a = document.write;
+    // a('hello'); // error
+    a.bind(document)('hello'); // hello
+    document.write('<br>')
+    a.bind(document,'hello')(); // hello
+    // a.call(document, 'hello'); // hello
+
+    // 实现预定义参数
+    // 分析：Array.prototype.slice.call(arguments)是用来将参数由类数组转换为真正的数组；
+    // function list() {
+    //     console.log(arguments);
+    //     return Array.prototype.slice.call(arguments);
+    // }
+    // var list1 = list(1, 2, 3); // [1,2,3]
+    // // 第一个参数undefined表示this的指向，第二个参数10即表示list中真正的第一个参数，依次类推
+    // var a = list.bind(undefined, 10);
+    // var list2 = a(); // [10]
+    // var list3 = a(1, 2, 3); // [10,1,2,3]
+</script>
+
+</html>

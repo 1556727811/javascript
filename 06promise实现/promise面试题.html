@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+
+
+       // 立即resolve()的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
+       // 我理解的是  then回调函数没有进回调函数队列 而是直接执行  所以是then类型的微任务   所以在宏任务执行完 会立马执行它
+        var fn1 = new Promise(function (resolve, reject) {
+                console.log(1)
+                resolve(3)
+                Promise.resolve().then(()=>{console.log(4)})
+            }).then((res) => {
+                console.log(res)
+            })
+            console.log(2)
+
+            // Promise.resolve().then(() => { console.log(5) })
+            //  所以打印是1243    到2的时候 本轮事件循环结束了 
+
+                const p = Promise.resolve();
+                // 相当于 return new Promise(function (resolve) {
+                //         resolve(arg)
+                //     })
+
+            //     p.then(function () {
+            //         console.log('1111')
+            //     });
+            //     // 等价于
+                // new Promise(resolve => resolve('foo'))
+</script>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        
+    <title>footer沉底效果</title>
+        
+    <style type="text/css">
+              div {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+                  position: relative;
+              }
+              html, body {
+                  width: 100%;
+                  height: 100%;
+                  margin: 0;
+                  padding: 0;
+              }
+              #container {
+                  width: 100%;
+                  // 重点代码
+                  // 虽然不知道container的高度，但是可以设置一个最小高度，这样有利于布局
+                  min-height: 100%;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+              }
+              #content {
+                  background: blue;
+              }
+              #footer {
+                  width: 100%;
+                  height: 100px;
+                  background: red;
+              }
+          
+    </style>
+  </head>
+  <body>
+     
+    <div id="container">
+          
+      <div id="content">
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+                content 
+        <br />
+            
+      </div>
+            
+      <div id="footer">        footer     </div>
+    </div>
+     
+  </body>
+</html>

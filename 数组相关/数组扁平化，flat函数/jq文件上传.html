@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>flat数组</title>
+    <script src="https://s3.pstatp.com/cdn/expire-1-M/jquery/3.0.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="fileBtn">
+      <input type="file" id="uploadfile" />
+      <button type="button" class="btn btn-primary btn-sm btn-flie">上传附件</button>
+    </div>
+    <div class="info-item" id="fileList">
+      <!-- <div class="files-info">
+         　　  <p>文件1.pdf</p>
+         　　  <p class="filedown checkIcon"><img src="images/check.png" alt=""></p>
+         　　  <p class="filedown downIcon"><img src="images/down.png" alt=""></p>
+         　　  <p class="filedown deleteIcon"><img src="images/del.png" alt=""></p>
+           </div> -->
+    </div>
+  </body>
+</html>
+<script>
+  $(document).ready(function () {
+    console.log($)
+  });
+//   (function () {
+//     console.log($);
+//     var fileList = []; // 文件list
+//     $('#uploadfile').change(function () {
+//       var fileItem = $('#uploadfile')[0].files[0];
+//       var formData = new FormData();
+//       formData.append('file', fileItem);
+//       formData.append('type', '1');
+//       $.ajax({
+//         type: 'post',
+//         url: contextPath + '/user/upload',
+//         data: formData,
+//         async: true,
+//         cache: false,
+//         contentType: false,
+//         processData: false,
+//         dataType: 'json',
+//         success: function (data) {
+//           if (data.code == 2000) {
+//             var dataInfo = data.data;
+//             if (dataInfo) {
+//               fileList.push(dataInfo);
+//               showFile();
+//             }
+//           } else {
+//             alert(data.message);
+//           }
+//         }
+//       });
+//     });
+//     function showFile() {
+//       var fileItem = fileList;
+//       if (fileItem.length) {
+//         var str = '';
+//         for (var i = 0; i < fileItem.length; i++) {
+//           str += '<div class="files-info"><p>';
+//           str += fileItem[i].name;
+//           str += '</p>';
+//           /*str += '<p class="fileIcon checkIcon"><img src="images/check.png" alt=""></p>'
+//             str += '<p class="fileIcon down"><img src="images/down.png" alt=""></p>'*/
+//           str += '<p class="fileIcon delete"><img src="images/del.png" alt="" onclick=delFileItem(';
+//           str += `\'`;
+//           str += i;
+//           str += `\'`;
+//           str += ')></p>';
+//           str += '</div>';
+//         }
+//         $('#fileList').html(str);
+//       } else {
+//         $('#fileList').remove();
+//       }
+//     }
+//     function delFileItem(i) {
+//       fileList.splice(i, 1);
+//       showFile();
+//     }
+//   })();
+</script>

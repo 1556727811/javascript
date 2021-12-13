@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    // 不管resolve里面是同步还是异步 then的回调函数都必须等到状态为resolved才会执行
+    // 下一个then 回调必须等上一个then有返回值的时候也就是上一个promise状态改变了才触发下一个promise的resolve
+</body>
+<script>
+
+
+    // 01  当resolve没有异步包裹着  意思是状态立马改变
+
+    // let p3 = new Promise((resolve, reject) => {             
+    //            resolve(3)             
+    // })
+    // // 此时pengding是resolved   
+    // console.log(p3)
+    // // then能够在任意位置拿到p3的结果   注意then的回调不进入resolve的成功回调函数队列  而是直接执行 不过也是异步的
+    // p3.then((res)=>{
+    //     console.log(res)
+    // })  
+
+
+
+     //02 当resolve用异步操作包裹着   意思就是状态需要一定的时候改变    
+        // let p4 = new Promise((resolve, reject) => {
+        //        setTimeout(() => {
+        //               resolve(3)
+        //        }, 2000);
+        //     })
+        // // 此时应该是pengdind状态   then回调就会进入resolve的成功回调函数队列
+        // console.log(p4)
+        // // 会发现2秒后会执行then的成功回调函数队列  被resolve执行
+        // p4.then((res)=>{
+        //     console.log(res)
+        //     console.log(p4)
+        // })
+
+    // 总结就是只要状态变成了resolved   then的回调函数才会被执行  
+    // 如果resolve没有被异步任务包裹 ，那么then的回调函数就不会进到resolve成功回调函数队列里面被执行    then自己执行
+
+
+    var fn5 = new Promise(function (resolve, reject) {
+        console.log(0)
+        setTimeout(() => {
+            resolve(1)
+        }, 1000)
+    }).then((res) => {
+        // return的时候  下一个promise就执行了resolve   并把结果传给resolve
+        // 所以返回值有异步  才会对下一个promise有影响
+        // 直接return 2 下一个promise的resolve就会执行 
+        // 所以 打印顺序是0 2 3 1 
+        setTimeout(() => {
+            console.log(res)
+        }, 2000)
+        return 2
+
+        // return new Promise((resolve, reject) => {
+        //     setTimeout(() => {
+        //         console.log(res)
+        //         resolve(2)
+        //     }, 2000)
+        // })
+    }).then((res) => {
+        console.log(res)
+        return 3
+    }).then((res) => {
+        console.log(res)
+        return 4
+    })
+</script>
+
+</html>

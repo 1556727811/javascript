@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arguments.callee</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+
+    function factorial(n) {
+        return !(n > 1) ? 1 : factorial(n - 1) * n;
+    }
+
+    [1, 2, 3, 4, 5].map(factorial);
+    // (5)[1, 2, 6, 24, 120]
+    function factorial(n) {
+        console.log(n);
+        return !(n > 1) ? 1 : factorial(n - 1) * n;
+    }
+    console.log(factorial(3));
+    return n > 0 ? aaa(n - 1) * n : 1
+
+
+
+    function aaa(n) {
+        if (n > 0) {
+            // console.log(n)
+            return aaa(n - 1) * n
+        } else {
+            // console.log(n);
+            return 1
+        }
+    }
+    console.log(aaa(3))
+
+</script>

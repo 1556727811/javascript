@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  // Map转为数组
+  const map = new Map()
+  map.set(1, 'foo').set(2, 'bar').set(3, 'baz')
+  const arr = [...map]
+  console.log(arr)
+  // 数组 转为 Map
+  const arr = ['foo', 'bar', 'baz']
+  const arrChangeMap = (arr) => new Map(arr.map((value, key) => [key, value]))
+  console.log(arrChangeMap(arr))
+  // Map 转为对象
+  const map = new Map()
+  map.set(1, 'foo').set(2, 'bar').set(3, 'baz')
+  const mapChangeObj = (map) => {
+    let obj = {}
+    for (let [k, v] of map) {
+      obj[k] = v
+    }
+    return obj
+  }
+  console.log(mapChangeObj(map))
+  // 对象转为 Map
+  const obj = {
+    1: 'foo',
+    2: 'bar',
+    3: 'baz',
+  }
+  const objChangeMap = (obj) => {
+    let map = new Map()
+    for (let key in obj) {
+      map.set(key, obj[key])
+    }
+    return map
+  }
+  console.log(objChangeMap(obj))
+  // Map 转为 JSON
+  const map = new Map()
+  map.set(1, 'foo').set(2, 'bar').set(3, 'baz')
+  const mapChangeJson = (map) => JSON.stringify(mapChangeObj(map))
+  console.log(mapChangeJson(map))
+  // JSON 转为 Map
+  let json = '{"1":"foo","2":"bar","3":"baz"}'
+  const jsonChangeMap = (json) => objChangeMap(JSON.parse(json))
+  console.log(jsonChangeMap(json))
+</script>

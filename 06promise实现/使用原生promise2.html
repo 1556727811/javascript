@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>使用原生promise2</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    // 例子一
+    let promise = new Promise(function (resolve, reject) {
+        console.log('Promise');
+        resolve(5);
+    });
+
+    promise.then(function (res) {
+        console.log('resolved.');
+        console.log(res)
+    });
+
+    console.log('Hi!');
+
+    // 执行结果   Promise Hi resolved  原因是new 一个构造函数的时候会立即执行一下构造函数  
+    // 第一个console.log('Promise'); 是同步的  先执行   
+    // 第二个 resolve(); 是异步的 里面有定时器  resolve函数会执行then回调函数    所以放入then类型的异步队列
+    //  第三个又是同步的   所以先执行
+
+
+    // 例子二 图片异步加载  加载成功调用resolve   加载失败调用reject
+    function loadImageAsync(url) {
+        return new Promise(function (resolve, reject) {
+            const image = new Image();
+
+            image.onload = function () {
+                resolve(image);
+            };
+
+            image.onerror = function () {
+                reject(new Error('Could not load image at ' + url));
+            };
+
+            image.src = url;
+        });
+    }
+
+    //例子三  promise实现ajax操作  状态为200 就把结果通过resolve返回出去
+    const getJSON = function (url) {
+        const promise = new Promise(function (resolve, reject) {
+            const handler = function () {
+                if (this.readyState !== 4) {
+                    return;
+                }
+                if (this.status === 200) {
+                    resolve(this.response);
+                } else {
+                    reject(new Error(this.statusText));
+                }
+            };
+            const client = new XMLHttpRequest();
+            client.open("GET", url);
+            client.onreadystatechange = handler;
+            client.responseType = "json";
+            client.setRequestHeader("Accept", "application/json");
+            client.send();
+
+        });
+
+        return promise;
+    };
+
+    getJSON("postsjson.txt").then(function (json) {
+        console.log('Contents: ' + json);
+    }, function (error) {
+        console.error('出错了', error);
+    });
+
+    // 例子四  尽量resolve后面不要再写逻辑了  因为resolve里面有异步操作  
+    new Promise((resolve, reject) => {
+        resolve(1);
+        console.log(2);
+    }).then(r => {
+        console.log(r);
+    });
+    // 2
+    // 1
+    // 使用return  
+    new Promise((resolve, reject) => {
+        return resolve(1);
+        // 后面的语句不会执行
+        console.log(2);
+    })
+
+
+    // 例子五
+    // promise执行的过程是执行 传入的回调函数 fn   fn里面又传入了两个函数
+    // 所以promise执行其实就是 fn里面的resolve 或者reject函数在执行
+    // resolve函数里面 改变了promise的状态  并且保存了resolve传入的参数   并且执行了then里面的回调函数  并且把参数传递给then回调函数
+    // 所以promise执行 是 传参fn执行---resolve执行--- resolve里面执行函数then里面的回调   
+    // 如果没有写then   那就到resolve那一步    只是改变状态
+    const p111 = new Promise(function (resolve, reject) {
+        setTimeout(() => reject(new Error('fail')), 3000)
+    })
+
+    const p222 = new Promise(function (resolve, reject) {
+        setTimeout(() => resolve(p111), 4000)
+    })
+
+    p222
+        .then(result => console.log(result))
+        .catch(error => console.log(error))
+    // console.log(p111)
+    // Error: fail 
+    // p111是一个 Promise，3 秒之后变为rejected。p2222的状态在 1 秒之后改变，resolve方法返回的是p1
+    // 由于p2返回的是另一个 Promise，导致p2自己的状态无效了，   这个我自己写的promise没有实现这个  但是原生的肯定实现了
+    // 由p1的状态决定p2的状态。所以，后面的then语句都变成针对后者（p1）。又过了 2 秒，p1变为rejected，导致触发catch方法指定的回调函数。
+
+
+
+    // 例子六  then的回调函数里面返回一个promise   模拟链式调用ajax
+    // 一定会等到状态为resolve才会执行then里面的第一个回调函数  保证了调用顺序
+    getJSON("/post/1.json").then(function (post) {
+        return getJSON(post.commentURL);
+    }).then(function (comments) {
+        console.log("resolved: ", comments);
+    }, function (err) {
+        console.log("rejected: ", err);
+    });
+
+    // 例子七   第二个写法  还能捕获到 最前面的错误  推荐用第二种写法
+    // bad
+    promise
+        .then(function (data) {
+            // success
+        }, function (err) {
+            // error
+        });
+
+    // good
+    promise
+        .then(function (data) { //cb
+            // success
+        })
+        .catch(function (err) {
+            // error
+        });
+
+
+    // 例子8  finally方法用于指定不管 Promise 对象最后状态如何，都会执行的操作
+    // 服务器使用 Promise 处理请求，然后使用finally方法关掉服务器。
+    // finally方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是fulfilled还是rejected。
+    // 这表明，finally方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
+    promise
+        .then(result => { })
+        .catch(error => { })
+        .finally(() => { });
+
+    server.listen(port)
+        .then(function () {
+            // ...
+        })
+        .finally(server.stop);
+
+    promise
+        .finally(() => {
+            // 语句
+        });
+
+    // 等同于
+    promise
+        .then(
+            result => {
+                // 语句
+                return result;
+            },
+            error => {
+                // 语句
+                throw error;
+            }
+        );
+        // 它的实现
+    Promise.prototype.finally = function (callback) {
+        let P = this.constructor;
+        return this.then(
+            value => P.resolve(callback()).then(() => value),
+            reason => P.resolve(callback()).then(() => { throw reason })
+        );
+    };
+</script>
+
+</html>

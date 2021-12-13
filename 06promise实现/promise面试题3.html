@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+ resolve 了  then里面回调函数才会进队列
+</body>
+<script>
+
+    ///1
+    // Promise.resolve()
+    //     .then(() => {
+    //         // 这样是不会被捕获的
+    //         return new Error('error!!!')
+    //         // throw new Error('error!!!')
+    //         // return Promise.reject(new Error('error!!!'))
+
+    //     })
+    //     .then((res) => {
+    //         console.log('then: ', res)
+    //     })
+    //     .catch((err) => {
+    //         console.log('catch: ', err)
+    //     })
+    // //  .then 或者.catch 中 return 一个 error 对象并不会抛出错误，所以不会被后续的.catch 捕获，需要改成其中一种：
+
+    // // return Promise.reject(new Error('error!!!'))
+    // // return new Error('error!!!')
+
+
+    //2
+    // Promise.resolve(1)
+    //     .then(2)
+    //     .then(Promise.resolve(3))
+    //     .then(console.log)   //1
+
+
+    //   //.then 或者 .catch 的参数期望是函数，传入非函数则会发生值穿透
+
+    //3   打印结果  0到11  重点看一下 7 和10 的情况
+    //  定时器会在第二轮时间循环开始执行
+    // then回调函数按照出现的顺序   进入then类型微任务队列  并不是按照resolve执行的顺序
+
+    // 进入定时器的处理线程 宏任务
+    setTimeout(() => {
+        console.log(11)
+    });
+
+    // 第一个then回调进入then微任务队列 第二个then先等待第一个promise状态变化才会执行  所以先不进任务队列
+    // 一定要记住  链式回调里面的后面的promise一定要等到上一个promise的状态改变了才会开始执行resolve
+    // 第一个then执行完了 才会产生第二个then任务  所以第一次只有第一个Then任务进队列
+    new Promise((resolve, reject) => {
+        resolve(3)
+    }).then((res) => {
+        console.log(res)
+        return 10
+    }).then((res)=>{
+        // 这个promise一定是上一个的promise的状态变化了 才会执行resolve  所以then回调会排在微任务队末
+        console.log(res)
+    })
+
+    // 第三个then回调进then类型微任务队列
+    Promise.resolve().then(() => {
+        console.log(4)
+    })
+
+    let p1 = new Promise((resolve, reject) => {
+        // 第四个then回调进then类型微任务队列
+        Promise.resolve().then(() => {
+            console.log(5)
+        })
+        // 碰到一个同步任务  立刻执行  所以最先输出
+        console.log(0)
+        // 这里执行了resolve 里面是异步的  但是then回调函数因为还没有执行就还没有进队列  
+        resolve(7)    
+        console.log(1)  
+        // 下面这个会比上面的先执行   因为resolve是异步  但是promise本身是同步的  下面这个then会先进入then类型异步队列
+        // 准确的说  下面这个promise的状态变化的时候 更快   因为立刻就执行了then 
+        Promise.resolve().then(() => {
+            console.log(6)
+        })
+    })
+
+    // 此时p1的 then回调函数才进resolve 所以排在6下面
+    p1.then((res) => {
+        console.log(res)
+    })
+
+    // 同步的
+    console.log(2)
+
+    // 继续往then类型微任务队列里面放回调函数
+    Promise.resolve().then(() => {
+        console.log(8)
+    })
+
+    Promise.resolve().then(() => {
+        console.log(9)
+    })
+
+
+</script>
+
+</html>

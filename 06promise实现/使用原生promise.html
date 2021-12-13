@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    1 需要注意的是 原生js里面 then里面的回调是微任务 优先级比setTimeOut高
+    2 我们自己实现的promise是用定时器模拟的  但是我觉得原生的promise肯定不是用的定时器实现的  
+</body>
+<script>
+
+
+    // 会发现打印结果  是1  11 2  22 3  33
+    var fn1 = new Promise(function (resolve, reject) {
+        resolve(1)
+    }).then((res) => {
+        console.log(res)
+        return 2
+    }).then((res) => {
+        console.log(res)
+        return 3
+    })
+
+    var fn2 = new Promise(function (resolve, reject) {
+        resolve(11)
+    }).then((res) => {
+        console.log(res)
+        return 22
+    }).then((res) => {
+        console.log(res)
+        return 33
+    })
+
+
+
+    // 下面是解释
+    //  执行的顺序  可以用下面定时器来实现    可以按照步骤 打印  111 222 333 444
+    setTimeout(() => {
+        console.log(1111)
+        setTimeout(() => {
+            console.log(2222)
+            setTimeout(() => {
+                console.log(3333)
+                setTimeout(() => {
+                    console.log(4444)
+                });
+            }, 0);
+        });
+    }, 0);
+    // 如果两个promise 看看执行顺序   会发现  第一组定时器里面 打印了1111后  发现里面还有定时器  就把后面的定时器丢到队列里面去
+    // 继续往下执行  发现第二组定时器    所以会打印同步代码  1111111111111111111  然后继续把第二组里面的定时器也丢到队列里面去
+    // 现在同步代码执行完了    去队列里面  执行  第一组第二个定时器   会执行2222  然后又发现还有个定时器  就又把第二组第三个定时器丢到队列里面去
+    // 继续往下执行  发现第二组第二个定时器需要执行  执行它里面的同步代码  22222222222222   又发现第二组里面第三个定时器 又丢到队列里面去
+    // 这样一组交替的取     所以打印的结果是  1111  1111111111111  2222 222222222222222
+
+    setTimeout(() => {
+        console.log(1111111111111)
+        setTimeout(() => {
+            console.log(222222222222222)
+            setTimeout(() => {
+                console.log(33333333333333)
+                setTimeout(() => {
+                    console.log(44444444444)
+                });
+            }, 0);
+        });
+    }, 0);
+
+
+
+    // Promise.all()方法用于将多个 Promise 实例，包装成一个新的 Promise 实例   并且将所有的promise的结果放到一个数组里面 传给新的promise
+    //  const p = Promise.all([p1, p2, p3]);
+    // 生成一个Promise对象
+    const p1 = new Promise((resolve, reject) => {
+        resolve('hello');
+    })
+        .then(result => result)
+        .catch(e => e);
+
+    const p2 = new Promise((resolve, reject) => {
+        throw new Error('报错了');
+    })
+        .then(result => result)
+        .catch(e => e);
+
+    const p3 = new Promise((resolve, reject) => {
+        resolve('hello3')
+    })
+        .then(result => result)
+        .catch(e => e);
+
+    //   只有p1 p3状态都为fulfilled    新的Promise才会变成fulfilled
+    Promise.all([p1, p3])
+        .then(result => console.log(result))   //['hello','hello3']
+        .catch(e => console.log(e));
+        // 会报错  有一个reject状态  新Promise就会reject
+     Promise.all([p1,p2, p3])
+            .then(result => console.log(result))   //
+            .catch(e => console.log(e));
+
+
+    // Promise.race()方法同样是将多个 Promise 实例，包装成一个新的 Promise 实例。
+    // const p = Promise.race([p1, p2, p3]);
+  //   只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给p的回调函数
+  // 可以设定时间  如果指定时间没有返回结果 状态就变成reject   从而触发catch函数
+  Promise.race([p1, p2, p3])
+        .then(result => console.log(result))   //  结果是hello  p1传过来的
+        .catch(e => console.log(e));
+
+
+
+
+ //   Promise.allSettled()方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例。
+ // 只有等到所有这些参数实例都返回结果，不管是fulfilled还是rejected，包装实例才会结束。
+ // 下面代码对服务器发出三个请求，等到三个请求都结束，不管请求成功还是失败，加载的滚动图标就会消失。
+ // 有时候，我们不关心异步操作的结果，只关心这些操作有没有结束。这时，Promise.allSettled()方法就很有用。
+ // 如果没有这个方法，想要确保所有操作都结束，就很麻烦。Promise.all()方法无法做到这一点。
+   // Promise.allSettled(promises);
+    // const promises = [
+    //     fetch('/api-1'),
+    //     fetch('/api-2'),
+    //     fetch('/api-3'),
+    // ];
+
+ 
+
+ // 有时需要将现有对象转为 Promise 对象，Promise.resolve()方法就起到这个作用。
+
+ // const jsPromise = Promise.resolve($.ajax('/whatever.json'));
+
+ // 所以，如果希望得到一个 Promise 对象，比较方便的方法就是直接调用Promise.resolve()方法。
+ // 立即resolve()的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
+ const p = Promise.resolve();
+
+    p.then(function () {
+        // ...
+    });
+    // 等价于
+    new Promise(resolve => resolve('foo'))
+
+// Promise.reject(reason)方法也会返回一个新的 Promise 实例，该实例的状态为rejected。
+    const p22 = Promise.reject('出错了');
+    // 等同于
+    const p23 = new Promise((resolve, reject) => reject('出错了'))
+
+
+
+    console.log('我才是开始  因为我是同步代码')  // 因为我是同步代码
+
+
+
+    // 从pending变为fulfilled和从pending变为rejected。
+    // 只要这两种情况发生，状态就凝固了，不会再变了，会一直保持这个结果，这时就称为 resolved（已定型）。
+    // 如果改变已经发生了，你再对Promise对象添加回调函数，也会立即得到这个结果。
+    //这与事件（Event）完全不同，事件的特点是，如果你错过了它，再去监听，是得不到结果的。
+
+    // 怎么理解这段话
+
+</script>
+
+</html>

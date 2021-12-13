@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>手写promise</title>
+</head>
+
+<body>
+    // promise 里面的resolve是异步的 所以then里面的回调函数按照事件循环的原则 能进入到resolvedCallbacks数组里面去 状态变化了才会执行
+    // 所以 只有resolve或者reject了 then里面的回调函数才会执行
+    // 这样就保证了 resolve把value值改变了 then里面拿到了结果 才会执行then里面的回调函数
+    // ajax里面嵌套调用就是因为 需要确保上一个ajax成功返回了值 才进行下一个调用
+    // promise就是为了解决这种 嵌套的繁琐 使用then进行链式回调
+
+
+    1 then函数 永远会返回一个promise
+    2 then函数里面的回调函数 也有可能返回一个promise 也可能返回一个具体的值
+    3 把then回调函数的返回值 当作 then函数返回的promise对象的 参数value
+    4 如果then函数里面的回调函数 返回的是一个promise 就执行一下该promise的then 并用resolve把结果抛出去 还是当成then函数返回的promise对象的 参数value
+</body>
+<script>
+    // 创建了三个常量用于表示状态
+    const PENDING = 'pending'
+    const RESOLVED = 'resolved'
+    const REJECTED = 'rejected'
+
+    function MyPromise(fn) {
+        // 创建了常量 that，因为代码可能会异步执行，用于获取正确的 this 对象
+        const that = this
+        //定义一个变量state   一开始 Promise 的状态应该是 pending
+        that.state = PENDING
+        // value 变量用于保存 resolve 或者 reject 中传入的值
+        that.value = null
+        // resolvedCallbacks 和 rejectedCallbacks 用于保存 then 中的回调
+        // 因为当执行完 Promise 时状态可能还是等待中，这时候应该把 then 中的回调保存起来用于状态改变时使用
+        that.resolvedCallbacks = []
+        that.rejectedCallbacks = []
+
+        // 首先下面两个函数都得判断当前状态是否为等待中，因为规范规定只有等待态才可以改变状态
+        // 定义resolv函数
+        // 对于 resolve 函数来说，首先需要判断传入的值是否为 Promise 类型
+        // 为了保证函数执行顺序，需要将两个函数体代码使用 setTimeout 包裹起来 resolve会先执行
+        function resolve(value) {
+            // 如果传入的对象 是一个promise   就返回新promise的then  
+            // 会发现执行了三次  pengding--resolved的过程  也就是  then有几个  就会有几个resolve函数  
+            // 他们进的是自己的promise的任务队列  不是第一个promise里面的回调函数任务队列
+            console.log('resolve执行了')
+            console.log(that.resolvedCallbacks)
+            console.log(that.state)
+            if (value instanceof MyPromise) {
+                return value.then(resolve, reject)  // 它返回的也是个promise
+            }
+            // 模拟异步  这是掘金上的写法 把resolve里面完成写了异步  但是原生的表现不是这样的
+            // setTimeout(() => {
+            //     if (that.state === PENDING) {
+            //         that.state = RESOLVED
+            //         that.value = value
+            //         console.log(that.state)
+            //         that.resolvedCallbacks.map(cb => cb(that.value))                 
+
+            //     }
+            // }, 0)
+
+            // 我觉得应该是这样的
+            if (that.state === PENDING) {
+                that.state = RESOLVED
+                that.value = value
+                setTimeout(() => {
+                    console.log(that.state)
+                    that.resolvedCallbacks.map(cb => cb(that.value))
+                }, 0)
+            }
+        }
+        // 定义reject函数      
+        function reject(value) {
+            setTimeout(() => {
+                if (that.state === PENDING) {
+                    that.state = REJECTED
+                    that.value = value
+                    that.rejectedCallbacks.map(cb => cb(that.value))
+                }
+            }, 0)
+        }
+        //  实现如何执行 Promise 中传入的函数了
+        // 执行传入的参数并且将之前两个函数当做参数传进去
+        try {
+            fn(resolve, reject)  // 传入了不代表调用了   需要自己调用一下  不然的化状态不可能会自己改变
+        } catch (e) {
+            // 可能执行函数过程中会遇到错误，需要捕获错误并且执行 reject 函数
+            reject(e)
+        }
+
+    }
+
+    // 最后来实现最简单的then函数
+    // 每个 then 函数都需要返回一个新的 Promise 对象，该变量用于保存新的返回对象
+    MyPromise.prototype.then = function (onFulfilled, onRejected) {
+        const that = this
+        // 判断两个参数是否为函数类型，因为这两个参数是可选参数
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v
+        onRejected =
+            typeof onRejected === 'function'
+                ? onRejected
+                : r => {
+                    throw r
+                }
+        // 如果状态是等待   就往 存then回调函数的数组里面   放入then的回调函数  去数组里面等待状态改变再执行
+        // 这里面的执行都是同步
+        if (that.state === PENDING) {
+            // 返回一个变量出去  是一个新的实例  then一定是返回一个promise
+            return (promise2 = new MyPromise((resolve, reject) => {
+                // push进去的也是一个方法  等待resolve完成的时候执行
+                that.resolvedCallbacks.push(() => {
+                    try {
+                        // 拿到then回调函数的执行结果  
+                        const x = onFulfilled(that.value)
+                        // 把结果进行比对  重点就是把结果传递下去  根据返回值做不同的判断
+                        // 这个函数的目的  就是为了把x当成下一个promise的resolve的参数  并执行resolve
+                        // 下一个then里面获取到的参数  就是上一个then的返回值
+                        // 这是不是跟ajax很像   我要把上一次的执行结果当成下一次执行的参数  依次传递执行
+                        resolutionProcedure(promise2, x, resolve, reject)
+                    } catch (r) {
+                        reject(r)
+                    }
+                })
+
+                that.rejectedCallbacks.push(() => {
+                    try {
+                        const x = onRejected(that.value)
+                        resolutionProcedure(promise2, x, resolve, reject)
+                    } catch (r) {
+                        reject(r)
+                    }
+                })
+            }))
+        }
+        // 如果状态是成功   就拿到结果并且把结果当成参数传进去   并且自动执行回调函数 
+        // 状态是成功的一样也要返回一个新的promise   这样就可以实现then的链式回调了
+        // 把第一个then的回调函数的结果  当成  第二个promise的resolve(value) 里面的value 抛出去   以此类推
+        // 每一个promise 的状态都必须改变了才会执行数组里面的回调函数
+        if (that.state === RESOLVED) {
+            console.log('立即resolve的才会进到这一步   只有第一个是立即resolve 其他的都是要等上一个resolved才会触发')
+            return (promise2 = new MyPromise((resolve, reject) => {
+                //注意一下这里的setTimeOut没有设置时间  会比设置时间为0慢一点 虽然也是立即执行
+                // 所以then回调里面执行函数  会比后面的promise里面慢
+                setTimeout(() => {
+                    try {
+                        // x是then 的回调函数的执行结果  要把这个结果当成  promise的value 抛出去
+                        const x = onFulfilled(that.value)
+                        resolutionProcedure(promise2, x, resolve, reject)
+                    } catch (reason) {
+                        reject(reason)
+                    }
+                })
+            }))
+        }
+        if (that.state === REJECTED) {
+            onRejected(that.value)
+        }
+
+        // 实现兼容多种 Promise 的 resolutionProcedure 函数  
+        // 这个函数的目的是为了执行一遍then返回的promise 里面的  resolve(x)   x 是上一个then执行的回调函数的结果  
+        // x可以是一个具体的值 也可以是一个promise对象
+        // resolutionProcedure这个函数的目的 就是为了执行一次resolve   因为新promise也必须执行resolve状态才会改变
+        function resolutionProcedure(promise2, x, resolve, reject) {
+            // 规范规定了 x 不能与 promise2 相等，这样会发生循环引用的问题
+            // x 是then回调函数的执行结果  promise2是then函数的执行结果  简版里面没有promise2
+            if (promise2 === x) {
+                return reject(new TypeError('Error'))
+            }
+            // 如果回调函数的执行结果  是MyPromise的实例
+            if (x instanceof MyPromise) {
+                // 那么就调用它的then方法 还是会返回一个promise   得到了value  再resolve出去
+                // 目的就是把返回值执行then函数可以拿到返回值的resolve参数  当成下一个promise的value
+                x.then(function (value) {
+                    resolutionProcedure(promise2, value, resolve, reject)
+                }, reject)
+            }
+            // 首先创建一个变量 called 用于判断是否已经调用过函数
+            let called = false
+            // 然后判断 x 是否为对象或者函数，如果都不是的话，将 x 传入 resolve 中
+            // 说明如果 x只是一个值   那么就把它放到新promise对象的resolve里面去
+            if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+                try {
+                    let then = x.then
+                    //x 是对象或者函数的话，先把 x.then 赋值给 then，然后判断 then 的类型，
+                    if (typeof then === 'function') {
+                        //  then 是函数类型的话，就将 x 作为函数的作用域 this 调用之，
+                        // 并且传递两个回调函数作为参数，第一个参数叫做 resolvePromise ，第二个参数叫做 rejectPromise，
+                        // 两个回调函数都需要判断是否已经执行过函数，然后进行相应的逻辑
+                        then.call(
+                            x,
+                            y => {
+                                if (called) return
+                                called = true
+                                resolutionProcedure(promise2, y, resolve, reject)
+                            },
+                            e => {
+                                if (called) return
+                                called = true
+                                reject(e)
+                            }
+                        )
+                    } else {
+                        // 如果不是函数类型的话，就将 x 传入 resolve 中
+                        resolve(x)
+                    }
+                } catch (e) {
+                    if (called) return
+                    called = true
+                    reject(e)
+                }
+            } else {
+                // 说明如果 x也就是 then的回调函数只是一个值   那么就把它放到新promise对象的resolve里面去
+                // 新promise里面也必须要执行一下resolve状态才会改变
+                resolve(x)
+            }
+        }
+
+
+    }
+
+    // 这里有问题  原生的promise应该是立即变成resolved了  但是这里把resolve里面完全写成了异步
+    // 我把改变状态那一段写成了同步  执行成功回调函数写成了异步
+
+    let p = new MyPromise(function (resolve, reject) {
+        resolve('0000')
+    })
+    console.log(p)
+
+
+    // promise 需要的只是value的值  一层层的传递下去 根据状态有序的执行
+    // // ajax 的链式回调也是因为  下一次的ajax需要依赖上一次的ajax的执行结果  才在回调里面继续嵌套ajax
+
+    // 如果then  回调函数里面返回的是一个具体的值      then函数永远会返回一个promise
+
+    // 打印结果是 123 
+    // var fn = new MyPromise(function (resolve, reject) {
+    //     console.log(0)
+    //     // 里面是异步的  进入setTimeOut类型的异步队列里面 排在第一个  
+    //     resolve(1)   // 执行了resolve 就是在执行then里面的回调
+    // }).then((res) => {
+    //     // 也是异步的  进入进入setTimeOut类型的异步队列里面 排在第二个  但是因为时间没有设置为0   会比设置为0 的执行慢一点  
+    //     console.log(res)
+    //     // 如果第一个then的回调函数返回的 不是对象  只是个普通的值  就把这个结果  放到新promise的value里面去 并且resolve出去
+    //     return 2  // return的目的是  当作新promise的value  下面一个then就能使用
+    //     // 执行了return 就返回了新promise 并且执行了一遍resolve 所以又有一个定时器为0 的定时器进入异步队列
+    // }).then((res) => {
+    //     // 进入进入setTimeOut类型的异步队列里面 排在第三个 定时器时间没有设置0
+    //     console.log(res)
+    //     return 3
+    // }).then((res) => {
+    //     // 进入进入setTimeOut类型的异步队列里面 排在第三个 定时器时间没有设置0
+    //     console.log(res)
+    //     return 4
+    // })
+
+    // console.log(fn.state)
+    //  执行的顺序  可以用下面定时器来实现    可以按照步骤 打印  111 222 333 444
+    //  setTimeout(() => {
+    //         console.log(1111)
+    //         setTimeout(() => {
+    //             console.log(2222)
+    //              setTimeout(() => {
+    //                 console.log(3333)
+    //                 setTimeout(() => {
+    //                      console.log(4444)
+    //                 });
+    //             },0);
+    //         });
+    // }, 0);
+    // 如果两个promise 看看执行顺序   会发现  第一组定时器里面 打印了1111后  发现里面还有定时器  就把后面的定时器丢到队列里面去
+    // 继续往下执行  发现第二组定时器    所以会打印同步代码  1111111111111111111  然后继续把第二组里面的定时器也丢到队列里面去
+    // 现在同步代码执行完了    去队列里面  执行  第一组第二个定时器   会执行2222  然后又发现还有个定时器  就又把第二组第三个定时器丢到队列里面去
+    // 继续往下执行  发现第二组第二个定时器需要执行  执行它里面的同步代码  22222222222222   又发现第二组里面第三个定时器 又丢到队列里面去
+    // 这样一组交替的取     所以打印的结果是  1111  1111111111111  2222 222222222222222
+
+    //  setTimeout(() => {
+    //         console.log(1111111111111)
+    //         setTimeout(() => {
+    //             console.log(222222222222222)
+    //             setTimeout(() => {
+    //                 console.log(33333333333333)
+    //                 setTimeout(() => {
+    //                     console.log(44444444444)
+    //                 });
+    //             }, 0);
+    //         });
+    //     }, 0);
+
+
+
+    // 如果then里面的回调函数  返回的是一个promise实例  then函数永远会返回一个promise
+    // 打印结果是
+
+    // var fn2 = new MyPromise(function (resolve, reject) {
+    //     // 定时器时间为0
+    //     resolve(11)
+    //     console.log('1111')
+    // }).then(function (res) {
+    //     console.log(res)
+    //     // 如果第一个then的回调函数返回的是一个新的promise   
+    //     // 那么就继续执行x.then  x.then又会继续返回一个新的promise   所以还能继续用then
+    //     //  执行x.then  其实是往resolve函数里面resolvedCallbacks添加了回调函数   resolve函数执行的时候 就会执行这些回调
+    //     // 所以下面返回的新promise默认会调用一下它的then方法   调用了then方法就又返回了新的promise 
+    //     return new MyPromise(function (resolve, reject) {
+    //         resolve(22)
+    //     })
+    //     // 效果跟 return 22是一样的
+    //   //  return '22'   // 定时器时间没有设置   然后再套一个定时器时间为0 的定时器
+    // }).then(function (res) {
+
+    //     console.log(res)
+    // })
+
+
+    // 当都是异步的情况
+    var fn5 = new MyPromise(function (resolve, reject) {
+        console.log(0)
+        setTimeout(() => {
+            resolve(1)
+        }, 1000)
+    }).then((res) => {
+        // return的时候  下一个promise就执行了resolve
+        // 所以返回值有异步  才会对下一个promise有影响
+        // setTimeout(() => {
+        //     console.log(res)
+        // }, 2000)
+        // return 2
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log(res)
+                resolve(2)
+            }, 2000)  
+        })
+    }).then((res) => {
+        console.log(res)
+        return 3
+    }).then((res) => {
+        console.log(res)
+        return 4
+    })
+</script>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  // let arr = ['GM', 'CD']
+  // let brr = [{ a: 'GM' }, { b: 'gd' }, { c: 'CD' }]
+  // const fun = (arr, brr) => {
+  //   let crr = []
+  //   for (let i = 0; i < arr.length; i++) {
+  //     brr.map((e) => {
+  //       for (const k in e) {
+  //         e[k] === arr[i] ? crr.push(e) : ''
+  //       }
+  //     })
+  //   }
+  //   return crr
+  // }
+  // console.log(fun(arr, brr))
+
+  // const fun2 = (arr, brr, crr = []) => {
+  //   for (let i = 0; i < arr.length; i++) {
+  //     brr.map((e) => (JSON.stringify(e).includes(arr[i]) ? crr.push(e) : ''))
+  //   }
+  //   return crr
+  // }
+  // console.log(fun2(arr, brr))
+
+  // const fun3 = (arr, brr, crr = []) => {
+  //   arr.map((k) => brr.map((e) => (JSON.stringify(e).includes(k) ? crr.push(e) : '')))
+  //   return crr
+  // }
+  // console.log(fun3(arr, brr))
+
+  let arr = [
+    { a: 1, b: 2, sub: [] },
+    { a: 2, b: 3, sub: [] },
+  ]
+  let brr = arr.map(({ sub, ...val }) => {
+    console.log(val);
+    sub.push(val)
+    // console.log(sub);
+    let obj = {
+      sub
+    }
+    return obj
+    // total.push(sub)
+    // return total
+  })
+  // for (let i = 0; i < arr.length; i++) {
+  //   arr[i].sub.push(arr[i].a,arr[i].b)
+  //   delete arr[i].a
+  //   delete arr[i].b
+  // }
+  console.log(brr);
+  // console.log(arr);
+  // let brr = arr.reduce((total, { sub, ...val }, index, arr) => {
+  //   sub.push(val)
+  //   clg
+  //   // total.push(sub)
+  //   // return total
+  // }, [])
+  // // console.log(brr)
+
+  // let arr = [{ a: 1, b: 2, sub: [] }]
+  // let arr2 = [{ a: 2, b: 3, sub: [] }]
+</script>

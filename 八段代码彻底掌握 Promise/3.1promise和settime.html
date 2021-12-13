@@ -1,0 +1,52 @@
+<!--
+ * @Description: 
+ * @Author: YH
+ * @Date: 2021-10-22 10:58:51
+ * @LastEditTime: 2021-10-22 11:26:16
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const aa = function () {
+        console.log(3)
+        return new Promise((res, rej) => {
+          console.log(4)
+          console.log(
+            setTimeout(() => {
+              console.log(6)
+              if (true) {
+                return res('ok')
+              } else {
+                return rej('false')
+              }
+            }, 1000),'settime1'
+          )
+        })
+      }
+      const bb = async () => {
+        console.log(2)
+        const ares = await aa()
+        console.log(7)
+        console.log(ares)
+      }
+      console.log(1)
+      bb()
+      console.log(5)
+      console.log(setTimeout(() => {}, 3000),'settime2') // 1
+      // const cc = () => {
+      //   return setTimeout(function () {
+      //     console.log('111')
+      //     return '123'
+      //   }, 1000)
+      // }
+      // console.log(cc())
+    </script>
+  </body>
+</html>

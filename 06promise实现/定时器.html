@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>定时器</title>
+</head>
+<body>
+    
+</body>
+<script>
+
+    //  会发现  设置时间为0会比不设置时间更快   这样就能解释promise里面的 定时器使用了
+    // 1 2 4 3 
+    // setTimeout(() => {
+    //     console.log(1)
+    //      setTimeout(() => {
+    //         console.log(4)
+    //     });
+    // }, 0);
+    // setTimeout(() => {
+    //     console.log(2)
+    // });
+    // setTimeout(() => {
+    //     console.log(3)
+    // }, 100);
+
+
+
+    //  执行的顺序  可以用下面定时器来实现    可以按照步骤 打印  111 222 333 444
+        setTimeout(() => {
+            console.log(1111)
+            setTimeout(() => {
+                console.log(2222)
+                setTimeout(() => {
+                    console.log(3333)
+                    setTimeout(() => {
+                        console.log(4444)
+                    });
+                }, 0);
+            });
+        }, 0);
+        // 如果两个promise 看看执行顺序   会发现  第一组定时器里面 打印了1111后  发现里面还有定时器  就把后面的定时器丢到队列里面去
+        // 继续往下执行  发现第二组定时器    所以会打印同步代码  1111111111111111111  然后继续把第二组里面的定时器也丢到队列里面去
+        // 现在同步代码执行完了    去队列里面  执行  第一组第二个定时器   会执行2222  然后又发现还有个定时器  就又把第二组第三个定时器丢到队列里面去
+        // 继续往下执行  发现第二组第二个定时器需要执行  执行它里面的同步代码  22222222222222   又发现第二组里面第三个定时器 又丢到队列里面去
+        // 这样一组交替的取     所以打印的结果是  1111  1111111111111  2222 222222222222222
+
+        setTimeout(() => {
+            console.log(1111111111111)
+            setTimeout(() => {
+                console.log(222222222222222)
+                setTimeout(() => {
+                    console.log(33333333333333)
+                    setTimeout(() => {
+                        console.log(44444444444)
+                    });
+                }, 0);
+            });
+        }, 0);
+
+</script>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    let obj = {}
+    let a = ([1, [2, 3, [4]], 5], '[a,[b,[c],e],d,f]')
+    let dismantleArray = function (arr, strArr2) {
+        let strArr = JSON.parse(strArr2.replace(/(\w)/g, '"$1"'))
+        let reduceArr = function (curArr, indexArr) {
+            // console.log(curArr)//["b", Array(1), "e"]
+            // console.log(indexArr)// [2, 3, Array(1)]
+            curArr.reduce((pre, cur, index, curArr) => {
+                if (Array.isArray(cur)) {
+                    if (Array.isArray(indexArr[index])) {
+                        return reduceArr(cur, indexArr[index])
+                    } else {
+                        return reduceArr(cur, indexArr[++index])
+                    }
+                } else {
+                    if (Array.isArray(indexArr[index])) {
+                        console.log('indexArr[index]是数组');
+                        return obj[cur] = undefined
+
+                    } else {
+                        return obj[cur] = indexArr[index]
+                    }
+                }
+            }, indexArr)
+        }
+        strArr.reduce((pre, cur, index) => {
+            Array.isArray(cur) ? reduceArr(cur, arr[index]) : obj[cur] = arr[index]
+        }, [])
+        return obj
+    }
+    const res = dismantleArray([1, [2, 3, [4]], 5], '[a,[b,[c],e],d,f]')
+    console.table(res);
+</script>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flat数组</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    // 将数组的元素展开一层的方案
+
+    // 扩展运算符 + concat
+
+    // concat() 方法用于合并两个或多个数组，在拼接的过程中加上扩展运算符会展开一层数组。详细见下面的代码。
+
+    // concat + apply
+
+    // 主要是利用apply 在绑定作用域时，传入的第二个参数是一个数组或者类数组对象，其中的数组元素将作为单独的参数传给func 函数。也就是在调用apply 函数的过程中，会将传入的数组一个一个的传入到要执行的函数中，也就是相当对数组进行了一层的展开。
+
+    // toString + split
+
+    // 不推荐使用 toString + split 方法，因为操作字符串是和危险的事情，在上一文章中我做了一个操作字符串的案例还被许多小伙伴们批评了。如果数组中的元素所有都是数字的话，toString + split 是可行的，并且是一步搞定。
+
+    // const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
+    // console.log(arr);
+
+    // 扩展运算符 + concat
+
+    // let b = [].concat(...arr); //此方法只能扁平化一层
+    // console.log(b);
+    // [1, 2, 3, 4, 1, 2, 3, [1, 2, 3, [1, 2, 3]], 5, "string", { name: "弹铁蛋同学" }];
+
+    // apply
+
+    // apply 在绑定作用域时，传入的第二个参数是一个数组或者类数组对象，其中的数组元素将作为单独的参数传给
+    // func 函数。也就是在调用 apply 函数的过程中，会将传入的数组一个一个的传入到要执行的函数中，
+    // 也就是相当对数组进行了一层的展开。
+    // let arr2=[console.log(1),console.log(2)]
+
+    // concat + apply
+
+    // let c = [].concat.apply([], arr);//此方法只能扁平化一层
+    // console.log(c)
+    // [1, 2, 3, 4, 1, 2, 3, [1, 2, 3, [1, 2, 3]], 5, "string", { name: "弹铁蛋同学" }];
+
+    // // toString  + split
+
+    // const arr2 = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]]]
+    // let d = arr2.toString().split(',')
+    // let c = arr2.toString().split(',').map(v => parseInt(v))
+    // console.log(c);
+    // console.log(d.map(e=> parseInt(e)));
+    // [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+    // function flat(arr) {
+    //     let flatArr = [];
+    //     for (let i = 0; i < arr.length; i++) {
+    //         if (Array.isArray(arr[i])) {
+    //             flatArr = flatArr.concat(flat(arr[i]))
+    //         } else {
+    //             flatArr.push(arr[i])
+    //         }
+    //     }
+    //     return flatArr
+    // }
+    // let myFlatArr = flat(arr)
+    // console.log(myFlatArr);
+
+    // reduce 
+
+    //推平1层
+    // let reduce1 = arr.reduce((pre, cur) => {
+    //     return pre.concat(cur)
+    // }, [])
+    // // console.log(reduce1);
+
+    // // reduce一层+递归
+    // const flat = function (arr) {
+    //     return arr.reduce((pre, cur) => {
+    //         return pre.concat(Array.isArray(cur) ? flat(cur) : cur)
+    //     }, [])
+    // }
+    // console.log(flat(arr));
+
+    /*  通过传入整数参数控制"拉平"层数*/
+    // let flat = function (arr, num = 1) {
+    //     return num > 0 ? arr.reduce((pre, cur) =>
+    //         pre.concat(Array.isArray(cur) ? flat(cur, num - 1) : cur)
+    //         , []) : arr.slice()
+    // }
+
+    // console.log(flat(arr, 1))
+
+
+
+
+
+
+
+
+
+
+
+
+    let findDeepArray = function (arr) {
+        for (let i = 0; i < arr.length; i++) {
+            if (Array.isArray(arr[i])) {
+                return arr[i][0]
+            } else {
+                findDeepArray(arr[i])
+            }
+        }
+
+    };
+    let dismantleArray = function (arr = [], str) {
+        // console.log(arr);
+        // console.log(str);
+        //去空格
+        str = str.replace(/\s+/g, "");
+        // console.log(str);
+        // 最深层
+        // console.log(str.lastIndexOf('['));
+        // console.log(str.indexOf(']'));
+        // 最深层数组
+        // console.log(str.substring(str.lastIndexOf('[')+1, str.indexOf(']')));
+        var a = str.substring(str.lastIndexOf('[') + 1, str.indexOf(']'));
+        console.log(str);
+
+
+        // 找到最深度数组
+        let forArr
+        arr.forEach(item => {
+            if (Array.isArray(item)) {
+                forArr = findDeepArray(item);
+                // console.log(forArr);
+                // arguments.callee(item);   // 递归
+            }
+        });
+        // str = str.replace(new RegExp(pattern), "");
+
+        console.log(a.split(','));
+        console.log(forArr);
+        return [(a.split(','))[0], forArr]
+
+        // arr.reduce((pre, cur) => {
+        //     // console.log(pre);
+        //     // console.log(cur);
+        //     if (Array.isArray(cur)) {
+        //         arguments.callee(cur)
+        //         console.log(cur);
+        //     }
+        // }, [])
+    }
+
+    const res = dismantleArray([1, [2, 3, [4]], 5], '[a, [b, [c,d], e], d, f]')
+    console.log(res)
+
+
+
+
+</script>

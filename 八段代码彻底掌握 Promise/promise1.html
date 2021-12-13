@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    // promise 的立即执行性
+    // var p = new Promise(function (resolve, reject) {
+    //     console.log('create a promise');
+    //     resolve('success')
+    // })
+    // console.log('after new Promise');
+    // p.then(function (value) {
+    //     console.log(value);
+    // })
+    // "create a promise"
+    // "after new Promise"
+    // "success"
+    /** Promise对象表示未来某个将要发生的事件，但在创建（new）Promise时，
+        作为Promise参数传入的函数是会被立即执行的，只是其中执行的代码可以是异步代码。
+        有些同学会认为，当Promise对象调用then方法时，Promise接收的函数才会执行，这是错误的。
+        因此，代码中"create a promise"先于"after new Promise"输出。
+
+    */
+
+
+    //Promise 三种状态
+    /**
+    var p1 = new Promise(function (resolve, reject) {
+        resolve(1)
+    })
+    var p2 = new Promise(function (resolve, reject) {
+        setTimeout(() => {
+            resolve(2)
+        }, 500);
+    })
+    var p3 = new Promise(function (resolve, reject) {
+        setTimeout(() => {
+            reject(3)
+        }, 500);
+    })
+    console.log(p1);
+    console.log(p2);
+    console.log(p3);
+    setTimeout(() => {
+        console.log(p2);
+    }, 1000);
+    setTimeout(() => {
+        console.log(p3);
+    }, 1000);
+    p1.then(function (value) {
+        console.log(value);
+    });
+    p2.then(function (value) {
+        console.log(value);
+    });
+    p3.catch(function (err) {
+        console.log(err);
+    });
+    */
+    // Promise的内部实现是一个状态机。Promise有三种状态：pending，resolved，rejected。当Promise刚创建完成时，处于pending状态；当Promise中的函数参数执行了resolve后，Promise由pending状态变成resolved状态；如果在Promise的函数参数中执行的不是resolve方法，而是reject方法，那么Promise会由pending状态变成rejected状态。
+    // p2、p3刚创建完成时，控制台输出的这两台Promise都处于pending状态，但为什么p1是resolved状态呢？ 这是因为p1 的函数参数中执行的是一段同步代码，Promise刚创建完成，resolve方法就已经被调用了，因而紧跟着的输出显示p1是resolved状态。我们通过两个setTimeout函数，延迟1s后再次输出p2、p3的状态，此时p2、p3已经执行完成，状态分别变成resolved和rejected。
+
+    // 链式调用
+    /*
+    var p = new Promise(function (resolve, reject) {
+        resolve(1)
+    })
+    p.then(function (value) {
+        console.log(value);//1
+        return value * 2
+    }).then(function (value) {
+        console.log(value);//2
+    }).then(function (value) {
+        console.log(value);//undefined 因为上面你没有return值
+        return Promise.resolve('resolve');
+    }).then(function (value) {
+        console.log(value);//resolve
+        return Promise.reject('reject')
+    }).then(function (value) {
+        //不走这里，因为上面直接reject了
+        console.log('resolve:' + value);
+    }, function (err) {
+        console.log('reject:' + err);//正常输出
+    })
+    */
+    /*
+        var p1 = new Promise(function (resolve, reject) {
+            console.log('create promise');
+            resolve(1)
+        })
+        p1.then(function (res) {
+            console.log('p1 then');
+            console.log(res);
+        },function(rej){
+
+        }).then(function(res){
+            console.log('p1 then then');
+        },function(rej){
+
+        })
+        p1.then(function(res){
+            console.log('p1 第二个');
+        })
+        var p2 = new Promise(function (resolve, reject) {
+            resolve(1)
+        })
+        p2.then(function (res) {
+            console.log('p2 then');
+        },function(rej){
+
+        }).then(function(res){
+            console.log('p2 then then');
+        },function(rej){
+
+        })
+    */
+    // new Promise的时候，里面的代码直接执行，所以promise的reslove或者reject后，
+    // 再使用这个promise对象的第一个then方法是同步执行，第二个then的时候相当于又new了一个promise
+    // 输出 p1 then p2 then p1 then then p2 then then
+
+
+
+    //Promise then() 回调异步性
+    /*
+    var p = new Promise(function (resolve, reject) {
+        resolve("success");
+    });
+
+    p.then(function (value) {
+        console.log(value);
+    });
+
+    console.log("which one is called first ?");
+    //输出 "which one is called first ?"
+    //"success"
+    */
+
+    // Promise 中的异常
+    /*
+   var p1 = new Promise(function (resolve, reject) {
+       // 发现错误直接进入下面then的reject方法里面
+       foo.bar()
+       resolve(1)
+   })
+   p1.then(
+       function (value) {
+           console.log('p1 then value: ' + value);
+       }, function (err) {
+           //这里同步代码结束后等其他同步代码直接再执行下面的then方法
+           console.log('p1 then err: ' + err);
+       }).then(
+           // 第一个异步方法
+           // 上面没有return任何结果， 所以打印undefined
+           function (value) {
+               console.log('p1 then then value: ' + value);
+               return 'p1 3 then'
+           },
+           function (err) {
+               console.log('p1 then then err: ' + err);
+           }
+       ).then(
+           function (res) {
+               console.log('p1 then then then',res);
+           }, function (rej) {
+               console.log('p1 then then then',rej);
+           })
+   var p2 = new Promise(function (resolve, reject) {
+       resolve(2)
+   })
+   p2.then(
+       function (value) {
+           //第一个then同步执行 正常打印
+           console.log('p2 then value: ' + value);
+           // 发现错误送给下面 异步 then方法的reject  这里同步代码执行完步，继续上面的第一个异步代码
+           foo.bar();
+       },
+       function (err) {
+           console.log('p2 then err: ' + err);
+       }
+   ).then(
+       function (value) {
+           console.log('p2 then then value: ' + value);
+       },
+       function (err) {
+           // 第二个异步代码 发现上面的错误直接截取，执行reject函数
+           console.log('p2 then then err: ' + err);
+           // throw '111'
+           return 1;
+       }
+   ).then(
+       // 上面代码虽然是在reject方法里面执行，但是并没有错误所以直接在下面的resolve方法执行代码
+       function (value) {
+           console.log('p2 then then then value: ' + value);
+       },
+       function (err) {
+           console.log('p2 then then then err: ' + err);
+       }
+   )
+   */
+    // Promise.resolve() 相关
+
+    /*
+        var p1 = Promise.resolve(1)
+        var p2 = Promise.resolve(p1)
+        var p3 = new Promise(function (resolve, reject) {
+            resolve(1)
+        })
+        var p4 = new Promise(function (resolve, reject) {
+            resolve(p1)
+        })
+        console.log(p1 === p2);
+        console.log(p1 === p3);
+        console.log(p1 === p4);
+        console.log(p3 === p4);
+        p4.then(function (value) {
+            console.log('p4=' + value);
+        });
+        p2.then(function (value) {
+            console.log('p2=' + value);
+        })
+
+        p1.then(function (value) {
+            console.log('p1=' + value);
+        })
+    */
+    // resolve vs reject
+    /*
+        var p1 = new Promise(function (resolve, reject) {
+            resolve(Promise.resolve('p1 resolve'));
+        });
+
+        var p2 = new Promise(function (resolve, reject) {
+            resolve(Promise.reject('p2 reject'));
+        });
+
+        var p3 = new Promise(function (resolve, reject) {
+            reject(Promise.resolve('p3 resolve'));
+        });
+        p1.then(
+            function fulfilled(value) {
+                console.log('fulfilled: ' + value);
+            },
+            function rejected(err) {
+                console.log('rejected: ' + err);
+            }
+        );
+
+        p2.then(
+            function fulfilled(value) {
+                console.log('fulfilled: ' + value);
+            },
+            function rejected(err) {
+                console.log('rejected: ' + err);
+            }
+        );
+
+        p3.then(
+            function fulfilled(value) {
+                console.log('fulfilled: ' + value);
+            },
+            function rejected(err) {
+                console.log('rejected: ' + err);
+            }
+        );
+    */
+
+
+</script>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>生成器函数 generator</title>
+  </head>
+
+  <body></body>
+</html>
+<script>
+  // let a = [0,1, 2, 3, 4, 5, 6, 7, 8, 9]
+  // let i=0
+  // console.log(a[i++]);//0
+  // console.log(i);//1
+
+  function* generator() {
+    yield 5
+  }
+
+  const gen = generator()
+  console.log(gen.next())
+  // {value: 5, done: false}
+  gen.next() // {value: undefined, done: true}
+  gen.next() // {value: undefined, done: true} - 之后的任何调用都会返回相同的结果
+
+  /* 简单用 ECMAScript 5 语法创建一个符合迭代器接口示例： */
+  // 迭代器
+  // function createIterator(items) {
+  //     var i = 0
+  //     return {
+  //         next: function () {
+  //             console.log(i);
+  //             var done = (i >= items.length)
+  //             var value = !done ? items[i++] : undefined
+
+  //             return {
+  //                 done: done,
+  //                 value: value
+  //             }
+  //         }
+  //     }
+  // }
+
+  /* 生成器
+      生成器是一 种返回迭代器的函数，通过 function 关键字后跟星号 (*) 来表示，
+      此外函数中还需要包含新关键字 yield。将上面示例改写为生成器函数方式。*/
+  // function* createIterator(items) {
+  //     for (let i = 0; i < items.length; i++) {
+  //         yield items[i]
+  //     }
+  // }
+  // // 调用生成器函数并不会立即执行内部语句，而是返回这个生成器的迭代器对象。迭代器首次调用 next() 方法时，
+  // //其内部会执行到 yield 后的语句为止。再次调用 next() ，
+  // //会从当前 yield 之后的语句继续执行，直到下一个 yield 位置暂停。
+  // var iterator = createIterator([1, 2])
+  // console.log(iterator.next())    // {done: false, value: 1}
+  // console.log(iterator.next())    // {done: false, value: 2}
+  // console.log(iterator.next())    // {done: true, value: undefined}
+
+  /* yield 关键字
+      yield 关键字可以用来暂停和恢复一个生成器函数。yield 后面的表达式的值返回给生成器的调用者，可以认为 yield 是基于生成器版本的 return 关键字。yield 关键字后面可以跟 任何值 或 表达式。
+      一旦遇到 yield 表达式，生成器的代码将被暂停运行，直到生成器的 next() 方法被调用。每次调用生成器的next()方法时，生成器都会在 yield 之后紧接着的语句继续执行。直到遇到下一个 yield 或 生成器内部抛出异常 或 到达生成器函数结尾 或 到达 return 语句停止。
+      注意，yield 关键字只可在生成器内部使用，在其他地方使用会导致语法错误。即使在生成器内部函数中使用也是如此。
+      */
+  /* 另外，yield * 可以用于声明委托生成器，即在 Generator 函数内部调用另一个 Generator 函数。 */
+
+  /*  next 方法
+       Generator.prototype.next() 返回一个包含属性 done 和 value 的对象，也可以接受一个参数用以向生成器传值。返回值对象包含的 done 和 value 含义与迭代器章节一致，没有可过多说道的。
+       ***值得关注的是，next() 方法可以接受一个参数，这个参数会*替代*生成器内部上条 yield 语句的返回值。***
+       如果不传 yield 语句返回值则为 undefined
+       */
+
+  /* 有个特例，首次调用 next() 方法时无论传入什么参数都会被丢弃。因为传给 next() 方法的参数会替代上一次 yield 的返回值，而在第一次调用 next() 方法前不会执行任何 yield 语句，所以首次调用时传参是无意义的。
+      事实上能给迭代器内部传值的能力是很重要的。比如在异步流程中，生成器函数执行到 yield 关键字处挂起，异步操作完成后须传递当前异步值供迭代器后续流程使用。 */
+
+  // function* createIterator(items) {
+  //     console.log(items);
+  //     let first = yield 1
+  //     console.log(first);
+  //     let second = yield first + 2
+  //     console.log(second);//undefiend 因为第三个next方法没有传参数
+  //     yield second ? 0 : 123 + 3
+  // }
+
+  // let iterator = createIterator()
+
+  // console.log(iterator.next())    // {value: 1, done: false}
+  // console.log(iterator.next(4))   // {value: 6, done: false}
+  // console.log(iterator.next())    // {value: NaN, done: false}
+  // console.log(iterator.next())    // {value: undefined, done: true}
+</script>

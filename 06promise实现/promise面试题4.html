@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+// 0  222 1 2 3
+    // 验证 只要有微任务就会先执行   暂停宏任务 
+    setTimeout(() => {
+        console.log(0)
+
+        // let p = new Promise((resolve, reject) => {
+        //     setTimeout(() => {
+        //         resolve(1)
+        //     }, 1000);
+
+        // })
+        // p.then((res) => {
+        //     console.log(res)
+        // })       
+        Promise.resolve().then(() => { console.log(1) })
+        console.log(222)
+    }, 1000);
+    setTimeout(() => {
+        console.log(2)
+    }, 2000);
+    setTimeout(() => {
+        console.log(3)
+    }, 3000);
+</script>
+
+</html>

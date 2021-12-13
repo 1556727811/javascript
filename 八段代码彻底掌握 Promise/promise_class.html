@@ -1,0 +1,77 @@
+<!--
+ * @Description: 
+ * @Author: YH
+ * @Date: 2021-09-30 17:08:26
+ * @LastEditTime: 2021-09-30 17:33:13
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body></body>
+</html>
+<script>
+  class MyPromise {
+    constructor (fn) {
+      this.successList = []
+      this.fialList = []
+      this.state = 'pending'
+      fn(this.resloveFn.bind(this), this.rejectFn.bind(this))
+    }
+    then (successFn, failFn) {
+      if (typeof successFn == 'function') {
+        this.successList.push(successFn)
+      }
+      if (typeof failFn == 'function') {
+        this.fialList.push(failFn)
+      }
+    }
+    catch (failFn) {
+      if (typeof failFn == 'function') {
+        this.fialList.push(failFn)
+      }
+    }
+    resloveFn (res) {
+      this.state = 'fullfilled'
+
+      this.successList.forEach(item => {
+        item(res)
+      })
+    }
+    rejectFn (res) {
+      this.state = 'rejected'
+      this.fialList.forEach(item => {
+        item(res)
+      })
+      throw Error(res)
+    }
+  }
+  var fn = function (reslove, reject) {
+    setTimeout(() => {
+      if (true) {
+        reslove('true')
+      } else {
+        reslove('false')
+      }
+    }, 1000)
+  }
+
+  //   var p2 = new MyPromise(fn)
+  var p2 = new MyPromise((reslove, reject) => {
+    setTimeout(() => {
+      if (true) {
+        reslove('true11')
+      } else {
+        reslove('false12')
+      }
+    }, 1000)
+  })
+  console.log(p2)
+  p2.then(res => {
+    console.log(res)
+  })
+</script>

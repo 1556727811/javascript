@@ -1,0 +1,32 @@
+<!--
+ * @Description: 
+ * @Author: YH
+ * @Date: 2020-05-13 14:21:56
+ * @LastEditTime: 2021-09-30 17:07:51
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    外面的promise的状态 根据里面的promise的回调函数决定的情况 其实就是 resolve
+    reject被异步操作包起来了
+  </body>
+  <script>
+    function test () {
+      return new Promise((resolve, reject) => {
+        ajax()
+          .then(res => {
+            resolve(true)
+          })
+          .catch(err => {
+            //console.log(err)
+            reject(false)
+          })
+      })
+    }
+  </script>
+</html>
